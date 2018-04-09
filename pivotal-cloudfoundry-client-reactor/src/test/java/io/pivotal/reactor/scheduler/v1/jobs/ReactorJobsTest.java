@@ -16,12 +16,13 @@
 
 package io.pivotal.reactor.scheduler.v1.jobs;
 
-import io.pivotal.reactor.scheduler.AbstractSchedulerApiTest;
-import io.pivotal.scheduler.v1.jobs.CreateJobRequest;
-import io.pivotal.scheduler.v1.jobs.CreateJobResponse;
 import io.pivotal.reactor.InteractionContext;
 import io.pivotal.reactor.TestRequest;
 import io.pivotal.reactor.TestResponse;
+import io.pivotal.reactor.scheduler.AbstractSchedulerApiTest;
+import io.pivotal.scheduler.v1.jobs.CreateJobRequest;
+import io.pivotal.scheduler.v1.jobs.CreateJobResponse;
+import io.pivotal.scheduler.v1.jobs.DeleteJobRequest;
 import io.pivotal.scheduler.v1.jobs.GetJobRequest;
 import io.pivotal.scheduler.v1.jobs.GetJobResponse;
 import org.junit.Test;
@@ -29,8 +30,10 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 
+import static io.netty.handler.codec.http.HttpMethod.DELETE;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.POST;
+import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 public final class ReactorJobsTest extends AbstractSchedulerApiTest {
@@ -67,6 +70,26 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                 .state("test-state")
                 .updatedAt("test-updated-at")
                 .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void delete() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(DELETE).path("/jobs/test-job-id")
+                .build())
+            .response(TestResponse.builder()
+                .status(NO_CONTENT)
+                .build())
+            .build());
+
+        this.jobs
+            .delete(DeleteJobRequest.builder()
+                .jobId("test-job-id")
+                .build())
+            .as(StepVerifier::create)
             .expectComplete()
             .verify(Duration.ofSeconds(5));
     }

@@ -16,21 +16,19 @@
 
 package io.pivotal.scheduler.v1.jobs;
 
-import org.junit.Test;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.immutables.value.Value;
 
-public class GetJobRequestTest {
+/**
+ * The request payload for the Delete a Job operation
+ */
+@Value.Immutable
+abstract class _DeleteJobRequest {
 
-    @Test(expected = IllegalStateException.class)
-    public void noJobId() {
-        GetJobRequest.builder()
-            .build();
-    }
-
-    @Test
-    public void valid() {
-        GetJobRequest.builder()
-            .jobId("test-job-id")
-            .build();
-    }
+    /**
+     * The job id
+     */
+    @JsonIgnore
+    abstract String getJobId();
 
 }

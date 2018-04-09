@@ -32,6 +32,14 @@ public interface Jobs {
     Mono<CreateJobResponse> create(CreateJobRequest request);
 
     /**
+     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#delete-a-job">Delete a Job</a> request
+     *
+     * @param request the Delete a Job request
+     * @return the response to the Delete a Job request
+     */
+    Mono<Void> delete(DeleteJobRequest request);
+
+    /**
      * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#get-a-job">Get a Job</a> request
      *
      * @param request the Get a Job request
