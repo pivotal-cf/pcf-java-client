@@ -38,7 +38,7 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
     public void create() {
         mockRequest(InteractionContext.builder()
             .request(TestRequest.builder()
-                .method(POST).path("/jobs")
+                .method(POST).path("/jobs?app_guid=test-application-id")
                 .payload("fixtures/scheduler/v1/jobs/POST_{id}_request.json")
                 .build())
             .response(TestResponse.builder()
