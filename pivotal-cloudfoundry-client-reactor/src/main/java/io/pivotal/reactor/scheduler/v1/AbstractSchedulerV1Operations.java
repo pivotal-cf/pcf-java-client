@@ -31,6 +31,14 @@ public class AbstractSchedulerV1Operations extends AbstractReactorOperations {
         super(connectionContext, root, tokenProvider);
     }
 
+    protected final <T> Mono<T> get(Object requestPayload, Class<T> responseType, Function<UriComponentsBuilder, UriComponentsBuilder> uriTransformer) {
+        return doGet(responseType,
+            queryTransformer(requestPayload)
+                .andThen(uriTransformer),
+            outbound -> outbound,
+            inbound -> inbound);
+    }
+
     protected final <T> Mono<T> post(Object requestPayload, Class<T> responseType, Function<UriComponentsBuilder, UriComponentsBuilder> uriTransformer) {
         return doPost(requestPayload, responseType,
             queryTransformer(requestPayload)

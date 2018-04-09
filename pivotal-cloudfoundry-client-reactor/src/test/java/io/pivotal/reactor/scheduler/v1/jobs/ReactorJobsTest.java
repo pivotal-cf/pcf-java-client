@@ -22,11 +22,14 @@ import io.pivotal.scheduler.v1.jobs.CreateJobResponse;
 import io.pivotal.reactor.InteractionContext;
 import io.pivotal.reactor.TestRequest;
 import io.pivotal.reactor.TestResponse;
+import io.pivotal.scheduler.v1.jobs.GetJobRequest;
+import io.pivotal.scheduler.v1.jobs.GetJobResponse;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
 
+import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
@@ -39,11 +42,11 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
         mockRequest(InteractionContext.builder()
             .request(TestRequest.builder()
                 .method(POST).path("/jobs?app_guid=test-application-id")
-                .payload("fixtures/scheduler/v1/jobs/POST_{id}_request.json")
+                .payload("fixtures/scheduler/v1/jobs/POST_{app_id}_request.json")
                 .build())
             .response(TestResponse.builder()
                 .status(OK)
-                .payload("fixtures/scheduler/v1/jobs/POST_{id}_response.json")
+                .payload("fixtures/scheduler/v1/jobs/POST_{app_id}_response.json")
                 .build())
             .build());
 
@@ -55,6 +58,37 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                 .build())
             .as(StepVerifier::create)
             .expectNext(CreateJobResponse.builder()
+                .applicationId("test-application-id")
+                .command("test-command")
+                .createdAt("test-created-at")
+                .jobId("test-job-id")
+                .name("test-name")
+                .spaceId("test-space-id")
+                .state("test-state")
+                .updatedAt("test-updated-at")
+                .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void get() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(GET).path("/jobs/test-job-id")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/jobs/GET_{id}_response.json")
+                .build())
+            .build());
+
+        this.jobs
+            .get(GetJobRequest.builder()
+                .jobId("test-job-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(GetJobResponse.builder()
                 .applicationId("test-application-id")
                 .command("test-command")
                 .createdAt("test-created-at")

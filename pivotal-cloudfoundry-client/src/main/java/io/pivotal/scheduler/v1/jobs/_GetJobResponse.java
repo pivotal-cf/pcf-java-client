@@ -16,27 +16,14 @@
 
 package io.pivotal.scheduler.v1.jobs;
 
-import reactor.core.publisher.Mono;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.immutables.value.Value;
 
 /**
- * Main entry point to the Jobs API
+ * The response payload for the Get a Job operation
  */
-public interface Jobs {
-
-    /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#create-job">Create Job</a> request
-     *
-     * @param request the Create Job request
-     * @return the response to the Create Job request
-     */
-    Mono<CreateJobResponse> create(CreateJobRequest request);
-
-    /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#get-a-job">Get a Job</a> request
-     *
-     * @param request the Get a Job request
-     * @return the response to the Get a Job request
-     */
-    Mono<GetJobResponse> get(GetJobRequest request);
+@JsonDeserialize
+@Value.Immutable
+abstract class _GetJobResponse extends AbstractJob {
 
 }
