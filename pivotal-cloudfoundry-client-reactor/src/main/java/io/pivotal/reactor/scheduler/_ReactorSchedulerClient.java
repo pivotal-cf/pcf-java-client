@@ -16,18 +16,25 @@
 
 package io.pivotal.reactor.scheduler;
 
-import io.pivotal.scheduler.v1.SchedulerClient;
-import org.cloudfoundry.networking.NetworkingClient;
+import io.pivotal.reactor.scheduler.v1.jobs.ReactorJobs;
+import io.pivotal.scheduler.SchedulerClient;
+import io.pivotal.scheduler.v1.jobs.Jobs;
 import org.cloudfoundry.reactor.ConnectionContext;
 import org.cloudfoundry.reactor.TokenProvider;
 import org.immutables.value.Value;
 import reactor.core.publisher.Mono;
 
 /**
- * The Reactor-based implementation of {@link NetworkingClient}
+ * The Reactor-based implementation of {@link SchedulerClient}
  */
 @Value.Immutable
 abstract class _ReactorSchedulerClient implements SchedulerClient {
+
+    @Override
+    @Value.Derived
+    public Jobs jobs() {
+        return new ReactorJobs(getConnectionContext(), getRoot(), getTokenProvider());
+    }
 
     /**
      * The connection context
@@ -36,7 +43,7 @@ abstract class _ReactorSchedulerClient implements SchedulerClient {
 
     @Value.Default
     Mono<String> getRoot() {
-        return getConnectionContext().getRootProvider().getRoot("network_policy_v1", getConnectionContext());
+        return getConnectionContext().getRootProvider().getRoot("scheduler", getConnectionContext());
     }
 
     /**

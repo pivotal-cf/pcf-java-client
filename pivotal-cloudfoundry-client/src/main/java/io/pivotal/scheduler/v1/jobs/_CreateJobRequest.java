@@ -14,11 +14,34 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1;
+package io.pivotal.scheduler.v1.jobs;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.immutables.value.Value;
 
 /**
- * Main entry point to the Scheduler Client API
+ * The request payload for the Create Job operation
  */
-public interface SchedulerClient {
+@Value.Immutable
+abstract class _CreateJobRequest {
+
+    /**
+     * The application id
+     */
+    @JsonIgnore
+    abstract String getApplicationId();
+
+    /**
+     * Command to run when the job is executed
+     */
+    @JsonProperty("command")
+    abstract String getCommand();
+
+    /**
+     * Name of the job
+     */
+    @JsonProperty("name")
+    abstract String getName();
 
 }

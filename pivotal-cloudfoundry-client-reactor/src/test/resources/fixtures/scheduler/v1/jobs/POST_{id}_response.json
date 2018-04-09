@@ -1,0 +1,10 @@
+{
+  "app_guid": "test-application-id",
+  "command": "test-command",
+  "created_at": "test-created-at",
+  "guid": "test-job-id",
+  "name": "test-name",
+  "space_guid": "test-space-id",
+  "state": "test-state",
+  "updated_at": "test-updated-at"
+}
