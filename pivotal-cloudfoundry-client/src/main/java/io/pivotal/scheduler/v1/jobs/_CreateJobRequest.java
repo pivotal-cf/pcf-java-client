@@ -16,8 +16,8 @@
 
 package io.pivotal.scheduler.v1.jobs;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cloudfoundry.QueryParameter;
 import org.immutables.value.Value;
 
 /**
@@ -29,7 +29,7 @@ abstract class _CreateJobRequest {
     /**
      * The application id
      */
-    @JsonIgnore
+    @QueryParameter("app_guid")
     abstract String getApplicationId();
 
     /**

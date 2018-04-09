@@ -16,18 +16,18 @@
 
 package io.pivotal.reactor.scheduler.v1.jobs;
 
+import io.pivotal.reactor.scheduler.v1.AbstractSchedulerV1Operations;
 import io.pivotal.scheduler.v1.jobs.CreateJobRequest;
 import io.pivotal.scheduler.v1.jobs.CreateJobResponse;
 import io.pivotal.scheduler.v1.jobs.Jobs;
 import org.cloudfoundry.reactor.ConnectionContext;
 import org.cloudfoundry.reactor.TokenProvider;
-import org.cloudfoundry.reactor.networking.AbstractNetworkingOperations;
 import reactor.core.publisher.Mono;
 
 /**
  * The Reactor-based implementation of {@link Jobs}
  */
-public class ReactorJobs extends AbstractNetworkingOperations implements Jobs {
+public class ReactorJobs extends AbstractSchedulerV1Operations implements Jobs {
 
     /**
      * Creates an instance
