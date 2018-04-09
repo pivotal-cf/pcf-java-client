@@ -18,17 +18,17 @@ package io.pivotal.scheduler.v1.jobs;
 
 import org.junit.Test;
 
-public class GetJobRequestTest {
+public class DeleteJobRequestTest {
 
     @Test(expected = IllegalStateException.class)
     public void noJobId() {
-        GetJobRequest.builder()
+        DeleteJobRequest.builder()
             .build();
     }
 
     @Test
     public void valid() {
-        GetJobRequest.builder()
+        DeleteJobRequest.builder()
             .jobId("test-job-id")
             .build();
     }
