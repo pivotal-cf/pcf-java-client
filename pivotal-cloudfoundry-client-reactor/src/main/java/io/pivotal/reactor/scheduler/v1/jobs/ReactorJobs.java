@@ -25,6 +25,8 @@ import io.pivotal.scheduler.v1.jobs.ExecuteJobResponse;
 import io.pivotal.scheduler.v1.jobs.GetJobRequest;
 import io.pivotal.scheduler.v1.jobs.GetJobResponse;
 import io.pivotal.scheduler.v1.jobs.Jobs;
+import io.pivotal.scheduler.v1.jobs.ListJobHistoriesRequest;
+import io.pivotal.scheduler.v1.jobs.ListJobHistoriesResponse;
 import io.pivotal.scheduler.v1.jobs.ListJobsRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobsResponse;
 import org.cloudfoundry.reactor.ConnectionContext;
@@ -74,6 +76,12 @@ public class ReactorJobs extends AbstractSchedulerV1Operations implements Jobs {
     @Override
     public Mono<ListJobsResponse> list(ListJobsRequest request) {
         return get(request, ListJobsResponse.class, builder -> builder.pathSegment("jobs"))
+            .checkpoint();
+    }
+
+    @Override
+    public Mono<ListJobHistoriesResponse> listHistories(ListJobHistoriesRequest request) {
+        return get(request, ListJobHistoriesResponse.class, builder -> builder.pathSegment("jobs", request.getJobId(), "history"))
             .checkpoint();
     }
 
