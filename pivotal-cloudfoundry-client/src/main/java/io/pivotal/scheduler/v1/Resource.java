@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1.jobs;
+package io.pivotal.scheduler.v1;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.immutables.value.Value;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * The response payload for the Create Job operation
- */
-@JsonDeserialize
-@Value.Immutable
-abstract class _CreateJobResponse extends Job {
+public abstract class Resource {
+
+    /**
+     * The resource's id
+     */
+    @JsonProperty("guid")
+    public abstract String getId();
 
 }

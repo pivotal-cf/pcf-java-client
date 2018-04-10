@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
 /**
- * The response payload for the Create Job operation
+ * The Resource response payload for the List Jobs operation
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _CreateJobResponse extends Job {
+abstract class _JobResource extends Job {
 
 }

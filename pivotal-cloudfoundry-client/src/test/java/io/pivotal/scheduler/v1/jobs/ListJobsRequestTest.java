@@ -16,14 +16,21 @@
 
 package io.pivotal.scheduler.v1.jobs;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.immutables.value.Value;
+import org.junit.Test;
 
-/**
- * The response payload for the Create Job operation
- */
-@JsonDeserialize
-@Value.Immutable
-abstract class _CreateJobResponse extends Job {
+public class ListJobsRequestTest {
+
+    @Test(expected = IllegalStateException.class)
+    public void noSpaceId() {
+        ListJobsRequest.builder()
+            .build();
+    }
+
+    @Test
+    public void valid() {
+        ListJobsRequest.builder()
+            .spaceId("test-space-id")
+            .build();
+    }
 
 }

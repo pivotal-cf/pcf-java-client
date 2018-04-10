@@ -20,11 +20,16 @@ import io.pivotal.reactor.InteractionContext;
 import io.pivotal.reactor.TestRequest;
 import io.pivotal.reactor.TestResponse;
 import io.pivotal.reactor.scheduler.AbstractSchedulerApiTest;
+import io.pivotal.scheduler.v1.Link;
+import io.pivotal.scheduler.v1.Pagination;
 import io.pivotal.scheduler.v1.jobs.CreateJobRequest;
 import io.pivotal.scheduler.v1.jobs.CreateJobResponse;
 import io.pivotal.scheduler.v1.jobs.DeleteJobRequest;
 import io.pivotal.scheduler.v1.jobs.GetJobRequest;
 import io.pivotal.scheduler.v1.jobs.GetJobResponse;
+import io.pivotal.scheduler.v1.jobs.JobResource;
+import io.pivotal.scheduler.v1.jobs.ListJobsRequest;
+import io.pivotal.scheduler.v1.jobs.ListJobsResponse;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
@@ -64,7 +69,7 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                 .applicationId("test-application-id")
                 .command("test-command")
                 .createdAt("test-created-at")
-                .jobId("test-job-id")
+                .id("test-job-id")
                 .name("test-name")
                 .spaceId("test-space-id")
                 .state("test-state")
@@ -115,11 +120,60 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                 .applicationId("test-application-id")
                 .command("test-command")
                 .createdAt("test-created-at")
-                .jobId("test-job-id")
+                .id("test-job-id")
                 .name("test-name")
                 .spaceId("test-space-id")
                 .state("test-state")
                 .updatedAt("test-updated-at")
+                .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void list() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(GET).path("/jobs?space_guid=test-space-id")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/jobs/GET_{space_id}_response.json")
+                .build())
+            .build());
+
+        this.jobs
+            .list(ListJobsRequest.builder()
+                .spaceId("test-space-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ListJobsResponse.builder()
+                .pagination(Pagination.builder()
+                    .first(Link.builder()
+                        .href("test-first-link")
+                        .build())
+                    .last(Link.builder()
+                        .href("test-last-link")
+                        .build())
+                    .next(Link.builder()
+                        .href("test-next-link")
+                        .build())
+                    .previous(Link.builder()
+                        .href("test-previous-link")
+                        .build())
+                    .totalPages(1)
+                    .totalResults(1)
+                    .build())
+                .resource(JobResource.builder()
+                    .applicationId("test-application-id")
+                    .command("test-command")
+                    .createdAt("test-created-at")
+                    .id("test-job-id")
+                    .name("test-name")
+                    .spaceId("test-space-id")
+                    .state("test-state")
+                    .updatedAt("test-updated-at")
+                    .build())
                 .build())
             .expectComplete()
             .verify(Duration.ofSeconds(5));
