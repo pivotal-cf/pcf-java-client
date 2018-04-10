@@ -17,13 +17,14 @@
 package io.pivotal.scheduler.v1.jobs;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.pivotal.scheduler.v1.PaginatedResponse;
 import org.immutables.value.Value;
 
 /**
- * The response payload for the Create Job operation
+ * The response payload for the Lists Jobs operation
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _CreateJobResponse extends Job {
+abstract class _ListJobsResponse extends PaginatedResponse<JobResource> {
 
 }

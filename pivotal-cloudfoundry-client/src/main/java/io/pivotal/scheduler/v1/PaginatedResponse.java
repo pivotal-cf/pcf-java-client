@@ -14,16 +14,32 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1.jobs;
+package io.pivotal.scheduler.v1;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.immutables.value.Value;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cloudfoundry.Nullable;
+
+import java.util.List;
 
 /**
- * The response payload for the Create Job operation
+ * Base class for responses that are paginated
+ *
+ * @param <T> the entity type
  */
-@JsonDeserialize
-@Value.Immutable
-abstract class _CreateJobResponse extends Job {
+public abstract class PaginatedResponse<T> {
+
+    /**
+     * The pagination
+     */
+    @JsonProperty("pagination")
+    @Nullable
+    public abstract Pagination getPagination();
+
+    /**
+     * The resources
+     */
+    @JsonProperty("resources")
+    @Nullable
+    public abstract List<T> getResources();
 
 }

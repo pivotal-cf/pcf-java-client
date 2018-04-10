@@ -47,4 +47,12 @@ public interface Jobs {
      */
     Mono<GetJobResponse> get(GetJobRequest request);
 
+    /**
+     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#get-all-jobs-within-space">List Jobs</a> request
+     *
+     * @param request the List Job request
+     * @return the response to the List Job request
+     */
+    Mono<ListJobsResponse> list(ListJobsRequest request);
+
 }

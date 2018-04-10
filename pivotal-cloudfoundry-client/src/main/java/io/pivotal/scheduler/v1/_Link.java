@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1.jobs;
+package io.pivotal.scheduler.v1;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
 /**
- * The response payload for the Create Job operation
+ * A link payload
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _CreateJobResponse extends Job {
+abstract class _Link {
+
+    /**
+     * The href
+     */
+    @JsonProperty("href")
+    abstract String getHref();
 
 }

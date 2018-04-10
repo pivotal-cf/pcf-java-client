@@ -17,9 +17,13 @@
 package io.pivotal.scheduler.v1.jobs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.pivotal.scheduler.v1.Resource;
 import org.cloudfoundry.Nullable;
 
-abstract class AbstractJob {
+/**
+ * Base class for responses that are Jobs
+ */
+public abstract class Job extends Resource {
 
     /**
      * ID of the application this job runs commands against
@@ -41,13 +45,6 @@ abstract class AbstractJob {
     @JsonProperty("created_at")
     @Nullable
     abstract String getCreatedAt();
-
-    /**
-     * Job ID
-     */
-    @JsonProperty("guid")
-    @Nullable
-    abstract String getJobId();
 
     /**
      * Name of the job
