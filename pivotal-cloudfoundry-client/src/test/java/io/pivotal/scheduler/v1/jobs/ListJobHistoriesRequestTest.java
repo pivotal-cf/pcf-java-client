@@ -16,20 +16,21 @@
 
 package io.pivotal.scheduler.v1.jobs;
 
-import org.cloudfoundry.QueryParameter;
-import org.cloudfoundry.client.v3.PaginatedRequest;
-import org.immutables.value.Value;
+import org.junit.Test;
 
-/**
- * The request payload for the List Jobs operation
- */
-@Value.Immutable
-abstract class _ListJobsRequest extends PaginatedRequest {
+public class ListJobHistoriesRequestTest {
 
-    /**
-     * The space id
-     */
-    @QueryParameter("space_guid")
-    abstract String getSpaceId();
+    @Test(expected = IllegalStateException.class)
+    public void noSpaceId() {
+        ListJobHistoriesRequest.builder()
+            .build();
+    }
+
+    @Test
+    public void valid() {
+        ListJobHistoriesRequest.builder()
+            .jobId("test-job-id")
+            .build();
+    }
 
 }

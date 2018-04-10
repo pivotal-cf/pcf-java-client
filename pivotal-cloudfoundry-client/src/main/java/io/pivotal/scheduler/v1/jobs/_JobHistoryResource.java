@@ -16,20 +16,14 @@
 
 package io.pivotal.scheduler.v1.jobs;
 
-import org.cloudfoundry.QueryParameter;
-import org.cloudfoundry.client.v3.PaginatedRequest;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
 /**
- * The request payload for the List Jobs operation
+ * The Resource response payload for the List Job Histories operation
  */
+@JsonDeserialize
 @Value.Immutable
-abstract class _ListJobsRequest extends PaginatedRequest {
-
-    /**
-     * The space id
-     */
-    @QueryParameter("space_guid")
-    abstract String getSpaceId();
+abstract class _JobHistoryResource extends JobHistory {
 
 }
