@@ -35,6 +35,8 @@ import io.pivotal.scheduler.v1.jobs.ListJobHistoriesRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobHistoriesResponse;
 import io.pivotal.scheduler.v1.jobs.ListJobsRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobsResponse;
+import io.pivotal.scheduler.v1.jobs.ScheduleJobRequest;
+import io.pivotal.scheduler.v1.jobs.ScheduleJobResponse;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
@@ -45,6 +47,7 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.pivotal.scheduler.v1.jobs.ExpressionType.CRON;
 
 public final class ReactorJobsTest extends AbstractSchedulerApiTest {
 
@@ -261,6 +264,40 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                     .state("test-state")
                     .taskId("test-task-id")
                     .build())
+                .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void schedule() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(POST).path("/jobs/test-job-id/schedules")
+                .payload("fixtures/scheduler/v1/jobs/POST_{id}_schedules_request.json")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/jobs/POST_{id}_schedules_response.json")
+                .build())
+            .build());
+
+        this.jobs
+            .schedule(ScheduleJobRequest.builder()
+                .enabled(false)
+                .expression("test-expression")
+                .expressionType(CRON)
+                .jobId("test-job-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ScheduleJobResponse.builder()
+                .createdAt("test-created-at")
+                .enabled(false)
+                .expression("test-expression")
+                .expressionType(CRON)
+                .id("test-schedule-id")
+                .jobId("test-job-id")
+                .updatedAt("test-updated-at")
                 .build())
             .expectComplete()
             .verify(Duration.ofSeconds(5));
