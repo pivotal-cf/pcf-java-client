@@ -25,6 +25,8 @@ import io.pivotal.scheduler.v1.Pagination;
 import io.pivotal.scheduler.v1.jobs.CreateJobRequest;
 import io.pivotal.scheduler.v1.jobs.CreateJobResponse;
 import io.pivotal.scheduler.v1.jobs.DeleteJobRequest;
+import io.pivotal.scheduler.v1.jobs.ExecuteJobRequest;
+import io.pivotal.scheduler.v1.jobs.ExecuteJobResponse;
 import io.pivotal.scheduler.v1.jobs.GetJobRequest;
 import io.pivotal.scheduler.v1.jobs.GetJobResponse;
 import io.pivotal.scheduler.v1.jobs.JobResource;
@@ -95,6 +97,38 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                 .jobId("test-job-id")
                 .build())
             .as(StepVerifier::create)
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void execute() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(POST).path("/jobs/test-job-id/execute")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/jobs/POST_{job_id}_response.json")
+                .build())
+            .build());
+
+        this.jobs
+            .execute(ExecuteJobRequest.builder()
+                .jobId("test-job-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ExecuteJobResponse.builder()
+                .executionEndTime("test-execution-end-time")
+                .executionStartTime("test-execution-start-time")
+                .id("test-history-id")
+                .jobId("test-job-id")
+                .message("test-message")
+                .scheduleId("test-schedule-id")
+                .scheduledTime("test-scheduled-time")
+                .state("test-state")
+                .taskId("test-task-id")
+                .build())
             .expectComplete()
             .verify(Duration.ofSeconds(5));
     }

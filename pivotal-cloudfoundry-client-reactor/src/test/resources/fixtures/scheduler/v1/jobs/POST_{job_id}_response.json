@@ -1,0 +1,11 @@
+{
+  "execution_end_time": "test-execution-end-time",
+  "execution_start_time": "test-execution-start-time",
+  "guid": "test-history-id",
+  "job_guid": "test-job-id",
+  "message": "test-message",
+  "schedule_guid": "test-schedule-id",
+  "scheduled_time": "test-scheduled-time",
+  "state": "test-state",
+  "task_guid": "test-task-id"
+}
