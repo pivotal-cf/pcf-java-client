@@ -16,15 +16,21 @@
 
 package io.pivotal.scheduler.v1.jobs;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.pivotal.scheduler.v1.PaginatedResponse;
-import org.immutables.value.Value;
+import org.junit.Test;
 
-/**
- * The response payload for the List Job Histories operation
- */
-@JsonDeserialize
-@Value.Immutable
-abstract class _ListJobHistoriesResponse extends PaginatedResponse<JobHistoryResource> {
+public class ListJobScheduleRequestTest {
+
+    @Test(expected = IllegalStateException.class)
+    public void noSpaceId() {
+        ListJobSchedulesRequest.builder()
+            .build();
+    }
+
+    @Test
+    public void valid() {
+        ListJobSchedulesRequest.builder()
+            .jobId("test-job-id")
+            .build();
+    }
 
 }
