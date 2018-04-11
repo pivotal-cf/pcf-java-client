@@ -21,10 +21,10 @@ import io.pivotal.scheduler.v1.PaginatedResponse;
 import org.immutables.value.Value;
 
 /**
- * The response payload for the List Job Histories operation
+ * The response payload for the List Job Schedules operation
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _ListJobHistoriesResponse extends PaginatedResponse<JobHistoryResource> {
+abstract class _ListJobSchedulesResponse extends PaginatedResponse<JobScheduleResource> {
 
 }

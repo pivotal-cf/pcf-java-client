@@ -72,6 +72,14 @@ public interface Jobs {
     Mono<ListJobHistoriesResponse> listHistories(ListJobHistoriesRequest request);
 
     /**
+     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#gets-all-schedules-for-a-job">List Job Schedules</a> request
+     *
+     * @param request the List Job Schedules request
+     * @return the response to the List Job Schedules request
+     */
+    Mono<ListJobSchedulesResponse> listSchedules(ListJobSchedulesRequest request);
+
+    /**
      * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#schedules-a-job-to-run-later">Schedule a Job to run later</a> request
      *
      * @param request the Schedule Job request

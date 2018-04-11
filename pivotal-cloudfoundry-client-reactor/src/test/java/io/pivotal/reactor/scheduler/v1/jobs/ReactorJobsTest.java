@@ -31,8 +31,11 @@ import io.pivotal.scheduler.v1.jobs.GetJobRequest;
 import io.pivotal.scheduler.v1.jobs.GetJobResponse;
 import io.pivotal.scheduler.v1.jobs.JobHistoryResource;
 import io.pivotal.scheduler.v1.jobs.JobResource;
+import io.pivotal.scheduler.v1.jobs.JobScheduleResource;
 import io.pivotal.scheduler.v1.jobs.ListJobHistoriesRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobHistoriesResponse;
+import io.pivotal.scheduler.v1.jobs.ListJobSchedulesRequest;
+import io.pivotal.scheduler.v1.jobs.ListJobSchedulesResponse;
 import io.pivotal.scheduler.v1.jobs.ListJobsRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobsResponse;
 import io.pivotal.scheduler.v1.jobs.ScheduleJobRequest;
@@ -263,6 +266,54 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                     .scheduledTime("test-scheduled-time")
                     .state("test-state")
                     .taskId("test-task-id")
+                    .build())
+                .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void listSchedules() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(GET).path("/jobs/test-job-id/schedules")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/jobs/GET_{id}_schedules_response.json")
+                .build())
+            .build());
+
+        this.jobs
+            .listSchedules(ListJobSchedulesRequest.builder()
+                .jobId("test-job-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ListJobSchedulesResponse.builder()
+                .pagination(Pagination.builder()
+                    .first(Link.builder()
+                        .href("test-first-link")
+                        .build())
+                    .last(Link.builder()
+                        .href("test-last-link")
+                        .build())
+                    .next(Link.builder()
+                        .href("test-next-link")
+                        .build())
+                    .previous(Link.builder()
+                        .href("test-previous-link")
+                        .build())
+                    .totalPages(1)
+                    .totalResults(1)
+                    .build())
+                .resource(JobScheduleResource.builder()
+                    .createdAt("test-created-at")
+                    .enabled(false)
+                    .expression("test-expression")
+                    .expressionType(CRON)
+                    .id("test-schedule-id")
+                    .jobId("test-job-id")
+                    .updatedAt("test-updated-at")
                     .build())
                 .build())
             .expectComplete()
