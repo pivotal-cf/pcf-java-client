@@ -35,6 +35,8 @@ import io.pivotal.scheduler.v1.jobs.JobResource;
 import io.pivotal.scheduler.v1.jobs.JobScheduleResource;
 import io.pivotal.scheduler.v1.jobs.ListJobHistoriesRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobHistoriesResponse;
+import io.pivotal.scheduler.v1.jobs.ListJobScheduleHistoriesRequest;
+import io.pivotal.scheduler.v1.jobs.ListJobScheduleHistoriesResponse;
 import io.pivotal.scheduler.v1.jobs.ListJobSchedulesRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobSchedulesResponse;
 import io.pivotal.scheduler.v1.jobs.ListJobsRequest;
@@ -263,6 +265,57 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                 .build())
             .as(StepVerifier::create)
             .expectNext(ListJobHistoriesResponse.builder()
+                .pagination(Pagination.builder()
+                    .first(Link.builder()
+                        .href("test-first-link")
+                        .build())
+                    .last(Link.builder()
+                        .href("test-last-link")
+                        .build())
+                    .next(Link.builder()
+                        .href("test-next-link")
+                        .build())
+                    .previous(Link.builder()
+                        .href("test-previous-link")
+                        .build())
+                    .totalPages(1)
+                    .totalResults(1)
+                    .build())
+                .resource(JobHistoryResource.builder()
+                    .executionEndTime("test-execution-end-time")
+                    .executionStartTime("test-execution-start-time")
+                    .id("test-history-id")
+                    .jobId("test-job-id")
+                    .message("test-message")
+                    .scheduleId("test-schedule-id")
+                    .scheduledTime("test-scheduled-time")
+                    .state("test-state")
+                    .taskId("test-task-id")
+                    .build())
+                .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void listScheduleHistories() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(GET).path("/jobs/test-job-id/schedules/test-schedule-id/history")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/jobs/GET_{id}_schedules_history_response.json")
+                .build())
+            .build());
+
+        this.jobs
+            .listScheduleHistories(ListJobScheduleHistoriesRequest.builder()
+                .jobId("test-job-id")
+                .scheduleId("test-schedule-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ListJobScheduleHistoriesResponse.builder()
                 .pagination(Pagination.builder()
                     .first(Link.builder()
                         .href("test-first-link")
