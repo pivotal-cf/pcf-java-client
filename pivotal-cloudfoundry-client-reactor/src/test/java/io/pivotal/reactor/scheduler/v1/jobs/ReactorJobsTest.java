@@ -25,6 +25,7 @@ import io.pivotal.scheduler.v1.Pagination;
 import io.pivotal.scheduler.v1.jobs.CreateJobRequest;
 import io.pivotal.scheduler.v1.jobs.CreateJobResponse;
 import io.pivotal.scheduler.v1.jobs.DeleteJobRequest;
+import io.pivotal.scheduler.v1.jobs.DeleteJobScheduleRequest;
 import io.pivotal.scheduler.v1.jobs.ExecuteJobRequest;
 import io.pivotal.scheduler.v1.jobs.ExecuteJobResponse;
 import io.pivotal.scheduler.v1.jobs.GetJobRequest;
@@ -48,6 +49,7 @@ import java.time.Duration;
 import static io.netty.handler.codec.http.HttpMethod.DELETE;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.POST;
+import static io.netty.handler.codec.http.HttpResponseStatus.CREATED;
 import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.pivotal.scheduler.v1.jobs.ExpressionType.CRON;
@@ -64,7 +66,7 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                 .payload("fixtures/scheduler/v1/jobs/POST_{app_id}_request.json")
                 .build())
             .response(TestResponse.builder()
-                .status(OK)
+                .status(CREATED)
                 .payload("fixtures/scheduler/v1/jobs/POST_{app_id}_response.json")
                 .build())
             .build());
@@ -111,13 +113,34 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
     }
 
     @Test
+    public void deleteSchedule() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(DELETE).path("/jobs/test-job-id/schedules/test-schedule-id")
+                .build())
+            .response(TestResponse.builder()
+                .status(NO_CONTENT)
+                .build())
+            .build());
+
+        this.jobs
+            .deleteSchedule(DeleteJobScheduleRequest.builder()
+                .jobId("test-job-id")
+                .scheduleId("test-schedule-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
     public void execute() {
         mockRequest(InteractionContext.builder()
             .request(TestRequest.builder()
                 .method(POST).path("/jobs/test-job-id/execute")
                 .build())
             .response(TestResponse.builder()
-                .status(OK)
+                .status(CREATED)
                 .payload("fixtures/scheduler/v1/jobs/POST_{job_id}_response.json")
                 .build())
             .build());
@@ -328,7 +351,7 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                 .payload("fixtures/scheduler/v1/jobs/POST_{id}_schedules_request.json")
                 .build())
             .response(TestResponse.builder()
-                .status(OK)
+                .status(CREATED)
                 .payload("fixtures/scheduler/v1/jobs/POST_{id}_schedules_response.json")
                 .build())
             .build());

@@ -20,6 +20,7 @@ import io.pivotal.reactor.scheduler.v1.AbstractSchedulerV1Operations;
 import io.pivotal.scheduler.v1.jobs.CreateJobRequest;
 import io.pivotal.scheduler.v1.jobs.CreateJobResponse;
 import io.pivotal.scheduler.v1.jobs.DeleteJobRequest;
+import io.pivotal.scheduler.v1.jobs.DeleteJobScheduleRequest;
 import io.pivotal.scheduler.v1.jobs.ExecuteJobRequest;
 import io.pivotal.scheduler.v1.jobs.ExecuteJobResponse;
 import io.pivotal.scheduler.v1.jobs.GetJobRequest;
@@ -62,6 +63,12 @@ public class ReactorJobs extends AbstractSchedulerV1Operations implements Jobs {
     @Override
     public Mono<Void> delete(DeleteJobRequest request) {
         return delete(request, Void.class, builder -> builder.pathSegment("jobs", request.getJobId()))
+            .checkpoint();
+    }
+
+    @Override
+    public Mono<Void> deleteSchedule(DeleteJobScheduleRequest request) {
+        return delete(request, Void.class, builder -> builder.pathSegment("jobs", request.getJobId(), "schedules", request.getScheduleId()))
             .checkpoint();
     }
 
