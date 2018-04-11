@@ -28,6 +28,8 @@ import io.pivotal.scheduler.v1.jobs.GetJobResponse;
 import io.pivotal.scheduler.v1.jobs.Jobs;
 import io.pivotal.scheduler.v1.jobs.ListJobHistoriesRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobHistoriesResponse;
+import io.pivotal.scheduler.v1.jobs.ListJobScheduleHistoriesRequest;
+import io.pivotal.scheduler.v1.jobs.ListJobScheduleHistoriesResponse;
 import io.pivotal.scheduler.v1.jobs.ListJobSchedulesRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobSchedulesResponse;
 import io.pivotal.scheduler.v1.jobs.ListJobsRequest;
@@ -93,6 +95,12 @@ public class ReactorJobs extends AbstractSchedulerV1Operations implements Jobs {
     @Override
     public Mono<ListJobHistoriesResponse> listHistories(ListJobHistoriesRequest request) {
         return get(request, ListJobHistoriesResponse.class, builder -> builder.pathSegment("jobs", request.getJobId(), "history"))
+            .checkpoint();
+    }
+
+    @Override
+    public Mono<ListJobScheduleHistoriesResponse> listScheduleHistories(ListJobScheduleHistoriesRequest request) {
+        return get(request, ListJobScheduleHistoriesResponse.class, builder -> builder.pathSegment("jobs", request.getJobId(), "schedules", request.getScheduleId(), "history"))
             .checkpoint();
     }
 
