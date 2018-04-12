@@ -28,6 +28,7 @@ import io.pivotal.scheduler.v1.calls.CallScheduleResource;
 import io.pivotal.scheduler.v1.calls.CreateCallRequest;
 import io.pivotal.scheduler.v1.calls.CreateCallResponse;
 import io.pivotal.scheduler.v1.calls.DeleteCallRequest;
+import io.pivotal.scheduler.v1.calls.DeleteCallScheduleRequest;
 import io.pivotal.scheduler.v1.calls.ExecuteCallRequest;
 import io.pivotal.scheduler.v1.calls.ExecuteCallResponse;
 import io.pivotal.scheduler.v1.calls.GetCallRequest;
@@ -106,6 +107,27 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
         this.calls
             .delete(DeleteCallRequest.builder()
                 .callId("test-call-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void deleteSchedule() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(DELETE).path("/calls/test-call-id/schedules/test-schedule-id")
+                .build())
+            .response(TestResponse.builder()
+                .status(NO_CONTENT)
+                .build())
+            .build());
+
+        this.calls
+            .deleteSchedule(DeleteCallScheduleRequest.builder()
+                .callId("test-call-id")
+                .scheduleId("test-schedule-id")
                 .build())
             .as(StepVerifier::create)
             .expectComplete()
