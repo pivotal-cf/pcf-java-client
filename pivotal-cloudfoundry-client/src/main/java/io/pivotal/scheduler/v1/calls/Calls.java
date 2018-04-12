@@ -80,6 +80,14 @@ public interface Calls {
     Mono<ListCallHistoriesResponse> listHistories(ListCallHistoriesRequest request);
 
     /**
+     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#gets-all-execution-histories-for-a-call-and-schedule">List Call Schedule Histories</a> request
+     *
+     * @param request the List Call Schedule Histories request
+     * @return the response to the List Call Schedule Histories request
+     */
+    Mono<ListCallScheduleHistoriesResponse> listScheduleHistories(ListCallScheduleHistoriesRequest request);
+
+    /**
      * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#gets-all-execution-histories-for-a-call">List Call Schedules</a> request
      *
      * @param request the List Call Schedules request
