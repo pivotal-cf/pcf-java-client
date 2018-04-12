@@ -16,21 +16,20 @@
 
 package io.pivotal.scheduler.v1.calls;
 
-import org.junit.Test;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.cloudfoundry.client.v3.PaginatedRequest;
+import org.immutables.value.Value;
 
-public class ExecuteCallRequestTest {
+/**
+ * The request payload for the List Call Histories operation
+ */
+@Value.Immutable
+abstract class _ListCallHistoriesRequest extends PaginatedRequest {
 
-    @Test(expected = IllegalStateException.class)
-    public void noCallId() {
-        ExecuteCallRequest.builder()
-            .build();
-    }
-
-    @Test
-    public void valid() {
-        ExecuteCallRequest.builder()
-            .callId("test-call-id")
-            .build();
-    }
+    /**
+     * The call id
+     */
+    @JsonIgnore
+    abstract String getCallId();
 
 }

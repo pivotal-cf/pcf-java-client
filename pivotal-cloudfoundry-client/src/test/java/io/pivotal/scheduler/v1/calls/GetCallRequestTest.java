@@ -21,7 +21,7 @@ import org.junit.Test;
 public class GetCallRequestTest {
 
     @Test(expected = IllegalStateException.class)
-    public void noJobId() {
+    public void noCallId() {
         GetCallRequest.builder()
             .build();
     }

@@ -25,6 +25,8 @@ import io.pivotal.scheduler.v1.calls.ExecuteCallRequest;
 import io.pivotal.scheduler.v1.calls.ExecuteCallResponse;
 import io.pivotal.scheduler.v1.calls.GetCallRequest;
 import io.pivotal.scheduler.v1.calls.GetCallResponse;
+import io.pivotal.scheduler.v1.calls.ListCallHistoriesRequest;
+import io.pivotal.scheduler.v1.calls.ListCallHistoriesResponse;
 import io.pivotal.scheduler.v1.calls.ListCallsRequest;
 import io.pivotal.scheduler.v1.calls.ListCallsResponse;
 import org.cloudfoundry.reactor.ConnectionContext;
@@ -74,6 +76,12 @@ public class ReactorCalls extends AbstractSchedulerV1Operations implements Calls
     @Override
     public Mono<ListCallsResponse> list(ListCallsRequest request) {
         return get(request, ListCallsResponse.class, builder -> builder.pathSegment("calls"))
+            .checkpoint();
+    }
+
+    @Override
+    public Mono<ListCallHistoriesResponse> listHistories(ListCallHistoriesRequest request) {
+        return get(request, ListCallHistoriesResponse.class, builder -> builder.pathSegment("calls", request.getCallId(), "history"))
             .checkpoint();
     }
 
