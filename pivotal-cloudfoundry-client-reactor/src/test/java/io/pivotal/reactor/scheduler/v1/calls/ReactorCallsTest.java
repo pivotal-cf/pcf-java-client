@@ -26,6 +26,8 @@ import io.pivotal.scheduler.v1.calls.CallResource;
 import io.pivotal.scheduler.v1.calls.CreateCallRequest;
 import io.pivotal.scheduler.v1.calls.CreateCallResponse;
 import io.pivotal.scheduler.v1.calls.DeleteCallRequest;
+import io.pivotal.scheduler.v1.calls.ExecuteCallRequest;
+import io.pivotal.scheduler.v1.calls.ExecuteCallResponse;
 import io.pivotal.scheduler.v1.calls.GetCallRequest;
 import io.pivotal.scheduler.v1.calls.GetCallResponse;
 import io.pivotal.scheduler.v1.calls.ListCallsRequest;
@@ -97,6 +99,37 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                 .callId("test-call-id")
                 .build())
             .as(StepVerifier::create)
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void execute() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(POST).path("/calls/test-call-id/execute")
+                .build())
+            .response(TestResponse.builder()
+                .status(CREATED)
+                .payload("fixtures/scheduler/v1/calls/POST_{call_id}_response.json")
+                .build())
+            .build());
+
+        this.calls
+            .execute(ExecuteCallRequest.builder()
+                .callId("test-call-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ExecuteCallResponse.builder()
+                .executionEndTime("test-execution-end-time")
+                .executionStartTime("test-execution-start-time")
+                .id("test-history-id")
+                .callId("test-call-id")
+                .message("test-message")
+                .scheduleId("test-schedule-id")
+                .scheduledTime("test-scheduled-time")
+                .state("test-state")
+                .build())
             .expectComplete()
             .verify(Duration.ofSeconds(5));
     }
