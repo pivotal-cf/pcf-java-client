@@ -21,7 +21,7 @@ import org.junit.Test;
 public class ListJobScheduleRequestTest {
 
     @Test(expected = IllegalStateException.class)
-    public void noSpaceId() {
+    public void noJobId() {
         ListJobSchedulesRequest.builder()
             .build();
     }

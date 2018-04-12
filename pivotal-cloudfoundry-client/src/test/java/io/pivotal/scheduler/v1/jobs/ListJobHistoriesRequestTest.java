@@ -21,7 +21,7 @@ import org.junit.Test;
 public class ListJobHistoriesRequestTest {
 
     @Test(expected = IllegalStateException.class)
-    public void noSpaceId() {
+    public void noJobId() {
         ListJobHistoriesRequest.builder()
             .build();
     }

@@ -18,17 +18,17 @@ package io.pivotal.scheduler.v1.calls;
 
 import org.junit.Test;
 
-public class ExecuteCallRequestTest {
+public class ListCallHistoriesRequestTest {
 
     @Test(expected = IllegalStateException.class)
     public void noCallId() {
-        ExecuteCallRequest.builder()
+        ListCallHistoriesRequest.builder()
             .build();
     }
 
     @Test
     public void valid() {
-        ExecuteCallRequest.builder()
+        ListCallHistoriesRequest.builder()
             .callId("test-call-id")
             .build();
     }

@@ -16,21 +16,14 @@
 
 package io.pivotal.scheduler.v1.calls;
 
-import org.junit.Test;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.immutables.value.Value;
 
-public class ExecuteCallRequestTest {
-
-    @Test(expected = IllegalStateException.class)
-    public void noCallId() {
-        ExecuteCallRequest.builder()
-            .build();
-    }
-
-    @Test
-    public void valid() {
-        ExecuteCallRequest.builder()
-            .callId("test-call-id")
-            .build();
-    }
+/**
+ * The Resource response payload for the List Call Histories operation
+ */
+@JsonDeserialize
+@Value.Immutable
+abstract class _CallHistoryResource extends CallHistory {
 
 }
