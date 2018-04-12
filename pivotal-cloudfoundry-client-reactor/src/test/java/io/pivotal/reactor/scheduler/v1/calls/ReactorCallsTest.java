@@ -22,13 +22,16 @@ import io.pivotal.reactor.TestResponse;
 import io.pivotal.reactor.scheduler.AbstractSchedulerApiTest;
 import io.pivotal.scheduler.v1.calls.CreateCallRequest;
 import io.pivotal.scheduler.v1.calls.CreateCallResponse;
+import io.pivotal.scheduler.v1.calls.DeleteCallRequest;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
 
+import static io.netty.handler.codec.http.HttpMethod.DELETE;
 import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpResponseStatus.CREATED;
+import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 
 public final class ReactorCallsTest extends AbstractSchedulerApiTest {
 
@@ -65,6 +68,26 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                 .updatedAt("test-updated-at")
                 .url("test-url")
                 .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void delete() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(DELETE).path("/calls/test-call-id")
+                .build())
+            .response(TestResponse.builder()
+                .status(NO_CONTENT)
+                .build())
+            .build());
+
+        this.calls
+            .delete(DeleteCallRequest.builder()
+                .callId("test-call-id")
+                .build())
+            .as(StepVerifier::create)
             .expectComplete()
             .verify(Duration.ofSeconds(5));
     }

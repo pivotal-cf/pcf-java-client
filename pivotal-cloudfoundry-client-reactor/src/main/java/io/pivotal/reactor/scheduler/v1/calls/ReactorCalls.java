@@ -20,6 +20,7 @@ import io.pivotal.reactor.scheduler.v1.AbstractSchedulerV1Operations;
 import io.pivotal.scheduler.v1.calls.Calls;
 import io.pivotal.scheduler.v1.calls.CreateCallRequest;
 import io.pivotal.scheduler.v1.calls.CreateCallResponse;
+import io.pivotal.scheduler.v1.calls.DeleteCallRequest;
 import org.cloudfoundry.reactor.ConnectionContext;
 import org.cloudfoundry.reactor.TokenProvider;
 import reactor.core.publisher.Mono;
@@ -45,4 +46,11 @@ public class ReactorCalls extends AbstractSchedulerV1Operations implements Calls
         return post(request, CreateCallResponse.class, builder -> builder.pathSegment("calls"))
             .checkpoint();
     }
+
+    @Override
+    public Mono<Void> delete(DeleteCallRequest request) {
+        return delete(request, Void.class, builder -> builder.pathSegment("calls", request.getCallId()))
+            .checkpoint();
+    }
+
 }
