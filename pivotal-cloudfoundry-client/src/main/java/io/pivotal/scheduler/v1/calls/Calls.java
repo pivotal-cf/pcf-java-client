@@ -40,6 +40,14 @@ public interface Calls {
     Mono<Void> delete(DeleteCallRequest request);
 
     /**
+     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#get-a-call">Get a Call</a> request
+     *
+     * @param request the Get a Call request
+     * @return the response to the Get a Call request
+     */
+    Mono<GetCallResponse> get(GetCallRequest request);
+
+    /**
      * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#get-all-calls-within-space">List Calls</a> request
      *
      * @param request the List Calls request
