@@ -1,0 +1,9 @@
+{
+  "call_guid": "test-call-id",
+  "created_at": "test-created-at",
+  "enabled": false,
+  "expression": "test-expression",
+  "expression_type": "cron_expression",
+  "guid": "test-schedule-id",
+  "updated_at": "test-updated-at"
+}
