@@ -35,6 +35,8 @@ import io.pivotal.scheduler.v1.calls.GetCallRequest;
 import io.pivotal.scheduler.v1.calls.GetCallResponse;
 import io.pivotal.scheduler.v1.calls.ListCallHistoriesRequest;
 import io.pivotal.scheduler.v1.calls.ListCallHistoriesResponse;
+import io.pivotal.scheduler.v1.calls.ListCallScheduleHistoriesRequest;
+import io.pivotal.scheduler.v1.calls.ListCallScheduleHistoriesResponse;
 import io.pivotal.scheduler.v1.calls.ListCallSchedulesRequest;
 import io.pivotal.scheduler.v1.calls.ListCallSchedulesResponse;
 import io.pivotal.scheduler.v1.calls.ListCallsRequest;
@@ -263,6 +265,56 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                 .build())
             .as(StepVerifier::create)
             .expectNext(ListCallHistoriesResponse.builder()
+                .pagination(Pagination.builder()
+                    .first(Link.builder()
+                        .href("test-first-link")
+                        .build())
+                    .last(Link.builder()
+                        .href("test-last-link")
+                        .build())
+                    .next(Link.builder()
+                        .href("test-next-link")
+                        .build())
+                    .previous(Link.builder()
+                        .href("test-previous-link")
+                        .build())
+                    .totalPages(1)
+                    .totalResults(1)
+                    .build())
+                .resource(CallHistoryResource.builder()
+                    .callId("test-call-id")
+                    .executionEndTime("test-execution-end-time")
+                    .executionStartTime("test-execution-start-time")
+                    .id("test-history-id")
+                    .message("test-message")
+                    .scheduleId("test-schedule-id")
+                    .scheduledTime("test-scheduled-time")
+                    .state("test-state")
+                    .build())
+                .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void listScheduleHistories() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(GET).path("/calls/test-call-id/schedules/test-schedule-id/history")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/calls/GET_{id}_schedules_history_response.json")
+                .build())
+            .build());
+
+        this.calls
+            .listScheduleHistories(ListCallScheduleHistoriesRequest.builder()
+                .callId("test-call-id")
+                .scheduleId("test-schedule-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ListCallScheduleHistoriesResponse.builder()
                 .pagination(Pagination.builder()
                     .first(Link.builder()
                         .href("test-first-link")

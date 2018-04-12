@@ -16,14 +16,26 @@
 
 package io.pivotal.scheduler.v1.calls;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.cloudfoundry.client.v3.PaginatedRequest;
 import org.immutables.value.Value;
 
 /**
- * The response payload for the Create Call operation
+ * The request payload for the List Call Schedule Histories operation
  */
-@JsonDeserialize
 @Value.Immutable
-abstract class _CreateCallResponse extends Call {
+abstract class _ListCallScheduleHistoriesRequest extends PaginatedRequest {
+
+    /**
+     * The call id
+     */
+    @JsonIgnore
+    abstract String getCallId();
+
+    /**
+     * The schedule id
+     */
+    @JsonIgnore
+    abstract String getScheduleId();
 
 }

@@ -28,6 +28,8 @@ import io.pivotal.scheduler.v1.calls.GetCallRequest;
 import io.pivotal.scheduler.v1.calls.GetCallResponse;
 import io.pivotal.scheduler.v1.calls.ListCallHistoriesRequest;
 import io.pivotal.scheduler.v1.calls.ListCallHistoriesResponse;
+import io.pivotal.scheduler.v1.calls.ListCallScheduleHistoriesRequest;
+import io.pivotal.scheduler.v1.calls.ListCallScheduleHistoriesResponse;
 import io.pivotal.scheduler.v1.calls.ListCallSchedulesRequest;
 import io.pivotal.scheduler.v1.calls.ListCallSchedulesResponse;
 import io.pivotal.scheduler.v1.calls.ListCallsRequest;
@@ -93,6 +95,12 @@ public class ReactorCalls extends AbstractSchedulerV1Operations implements Calls
     @Override
     public Mono<ListCallHistoriesResponse> listHistories(ListCallHistoriesRequest request) {
         return get(request, ListCallHistoriesResponse.class, builder -> builder.pathSegment("calls", request.getCallId(), "history"))
+            .checkpoint();
+    }
+
+    @Override
+    public Mono<ListCallScheduleHistoriesResponse> listScheduleHistories(ListCallScheduleHistoriesRequest request) {
+        return get(request, ListCallScheduleHistoriesResponse.class, builder -> builder.pathSegment("calls", request.getCallId(), "schedules", request.getScheduleId(), "history"))
             .checkpoint();
     }
 
