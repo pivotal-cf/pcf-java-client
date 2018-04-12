@@ -21,6 +21,8 @@ import io.pivotal.scheduler.v1.calls.Calls;
 import io.pivotal.scheduler.v1.calls.CreateCallRequest;
 import io.pivotal.scheduler.v1.calls.CreateCallResponse;
 import io.pivotal.scheduler.v1.calls.DeleteCallRequest;
+import io.pivotal.scheduler.v1.calls.GetCallRequest;
+import io.pivotal.scheduler.v1.calls.GetCallResponse;
 import io.pivotal.scheduler.v1.calls.ListCallsRequest;
 import io.pivotal.scheduler.v1.calls.ListCallsResponse;
 import org.cloudfoundry.reactor.ConnectionContext;
@@ -52,6 +54,12 @@ public class ReactorCalls extends AbstractSchedulerV1Operations implements Calls
     @Override
     public Mono<Void> delete(DeleteCallRequest request) {
         return delete(request, Void.class, builder -> builder.pathSegment("calls", request.getCallId()))
+            .checkpoint();
+    }
+
+    @Override
+    public Mono<GetCallResponse> get(GetCallRequest request) {
+        return get(request, GetCallResponse.class, builder -> builder.pathSegment("calls", request.getCallId()))
             .checkpoint();
     }
 

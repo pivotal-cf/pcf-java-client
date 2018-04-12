@@ -26,6 +26,8 @@ import io.pivotal.scheduler.v1.calls.CallResource;
 import io.pivotal.scheduler.v1.calls.CreateCallRequest;
 import io.pivotal.scheduler.v1.calls.CreateCallResponse;
 import io.pivotal.scheduler.v1.calls.DeleteCallRequest;
+import io.pivotal.scheduler.v1.calls.GetCallRequest;
+import io.pivotal.scheduler.v1.calls.GetCallResponse;
 import io.pivotal.scheduler.v1.calls.ListCallsRequest;
 import io.pivotal.scheduler.v1.calls.ListCallsResponse;
 import org.junit.Test;
@@ -69,7 +71,7 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                 .applicationId("test-application-id")
                 .authorizationHeader("test-authorization-header")
                 .createdAt("test-created-at")
-                .id("test-job-id")
+                .id("test-call-id")
                 .name("test-name")
                 .spaceId("test-space-id")
                 .updatedAt("test-updated-at")
@@ -95,6 +97,37 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                 .callId("test-call-id")
                 .build())
             .as(StepVerifier::create)
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void get() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(GET).path("/calls/test-call-id")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/calls/GET_{id}_response.json")
+                .build())
+            .build());
+
+        this.calls
+            .get(GetCallRequest.builder()
+                .callId("test-call-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(GetCallResponse.builder()
+                .applicationId("test-application-id")
+                .authorizationHeader("test-authorization-header")
+                .createdAt("test-created-at")
+                .id("test-call-id")
+                .name("test-name")
+                .spaceId("test-space-id")
+                .updatedAt("test-updated-at")
+                .url("test-url")
+                .build())
             .expectComplete()
             .verify(Duration.ofSeconds(5));
     }
@@ -137,7 +170,7 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                     .applicationId("test-application-id")
                     .authorizationHeader("test-authorization-header")
                     .createdAt("test-created-at")
-                    .id("test-job-id")
+                    .id("test-call-id")
                     .name("test-name")
                     .spaceId("test-space-id")
                     .updatedAt("test-updated-at")
