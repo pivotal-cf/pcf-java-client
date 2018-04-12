@@ -54,7 +54,7 @@ import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpResponseStatus.CREATED;
 import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.pivotal.scheduler.v1.jobs.ExpressionType.CRON;
+import static io.pivotal.scheduler.v1.ExpressionType.CRON;
 
 public final class ReactorJobsTest extends AbstractSchedulerApiTest {
 

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1.jobs;
+package io.pivotal.scheduler.v1;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * The expression type of a {@link JobSchedule}
+ * The expression type of a schedule
  */
 public enum ExpressionType {
 

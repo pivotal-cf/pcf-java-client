@@ -24,6 +24,7 @@ import io.pivotal.scheduler.v1.Link;
 import io.pivotal.scheduler.v1.Pagination;
 import io.pivotal.scheduler.v1.calls.CallHistoryResource;
 import io.pivotal.scheduler.v1.calls.CallResource;
+import io.pivotal.scheduler.v1.calls.CallScheduleResource;
 import io.pivotal.scheduler.v1.calls.CreateCallRequest;
 import io.pivotal.scheduler.v1.calls.CreateCallResponse;
 import io.pivotal.scheduler.v1.calls.DeleteCallRequest;
@@ -33,6 +34,8 @@ import io.pivotal.scheduler.v1.calls.GetCallRequest;
 import io.pivotal.scheduler.v1.calls.GetCallResponse;
 import io.pivotal.scheduler.v1.calls.ListCallHistoriesRequest;
 import io.pivotal.scheduler.v1.calls.ListCallHistoriesResponse;
+import io.pivotal.scheduler.v1.calls.ListCallSchedulesRequest;
+import io.pivotal.scheduler.v1.calls.ListCallSchedulesResponse;
 import io.pivotal.scheduler.v1.calls.ListCallsRequest;
 import io.pivotal.scheduler.v1.calls.ListCallsResponse;
 import org.junit.Test;
@@ -46,6 +49,7 @@ import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpResponseStatus.CREATED;
 import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.pivotal.scheduler.v1.ExpressionType.CRON;
 
 public final class ReactorCallsTest extends AbstractSchedulerApiTest {
 
@@ -260,6 +264,54 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                     .scheduleId("test-schedule-id")
                     .scheduledTime("test-scheduled-time")
                     .state("test-state")
+                    .build())
+                .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void listSchedules() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(GET).path("/calls/test-call-id/schedules")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/calls/GET_{id}_schedules_response.json")
+                .build())
+            .build());
+
+        this.calls
+            .listSchedules(ListCallSchedulesRequest.builder()
+                .callId("test-call-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ListCallSchedulesResponse.builder()
+                .pagination(Pagination.builder()
+                    .first(Link.builder()
+                        .href("test-first-link")
+                        .build())
+                    .last(Link.builder()
+                        .href("test-last-link")
+                        .build())
+                    .next(Link.builder()
+                        .href("test-next-link")
+                        .build())
+                    .previous(Link.builder()
+                        .href("test-previous-link")
+                        .build())
+                    .totalPages(1)
+                    .totalResults(1)
+                    .build())
+                .resource(CallScheduleResource.builder()
+                    .callId("test-call-id")
+                    .createdAt("test-created-at")
+                    .enabled(false)
+                    .expression("test-expression")
+                    .expressionType(CRON)
+                    .id("test-schedule-id")
+                    .updatedAt("test-updated-at")
                     .build())
                 .build())
             .expectComplete()
