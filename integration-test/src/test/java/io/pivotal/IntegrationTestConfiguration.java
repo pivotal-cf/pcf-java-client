@@ -20,28 +20,27 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
-import com.github.zafarkhaja.semver.Version;
+import io.pivotal.reactor.scheduler.ReactorSchedulerClient;
 import org.cloudfoundry.client.CloudFoundryClient;
-import org.cloudfoundry.client.v2.info.GetInfoRequest;
 import org.cloudfoundry.client.v2.organizationquotadefinitions.CreateOrganizationQuotaDefinitionRequest;
 import org.cloudfoundry.client.v2.organizations.AssociateOrganizationManagerRequest;
 import org.cloudfoundry.client.v2.organizations.CreateOrganizationRequest;
 import org.cloudfoundry.client.v2.spaces.CreateSpaceRequest;
-import org.cloudfoundry.client.v2.stacks.ListStacksRequest;
-import org.cloudfoundry.doppler.DopplerClient;
 import org.cloudfoundry.networking.NetworkingClient;
+import org.cloudfoundry.operations.CloudFoundryOperations;
+import org.cloudfoundry.operations.DefaultCloudFoundryOperations;
+import org.cloudfoundry.operations.services.CreateServiceInstanceRequest;
+import org.cloudfoundry.operations.services.CreateServiceKeyRequest;
+import org.cloudfoundry.operations.services.GetServiceKeyRequest;
 import org.cloudfoundry.reactor.ConnectionContext;
 import org.cloudfoundry.reactor.DefaultConnectionContext;
 import org.cloudfoundry.reactor.ProxyConfiguration;
 import org.cloudfoundry.reactor.TokenProvider;
 import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
-import org.cloudfoundry.reactor.doppler.ReactorDopplerClient;
 import org.cloudfoundry.reactor.networking.ReactorNetworkingClient;
-import org.cloudfoundry.reactor.routing.ReactorRoutingClient;
 import org.cloudfoundry.reactor.tokenprovider.ClientCredentialsGrantTokenProvider;
 import org.cloudfoundry.reactor.tokenprovider.PasswordGrantTokenProvider;
 import org.cloudfoundry.reactor.uaa.ReactorUaaClient;
-import org.cloudfoundry.routing.RoutingClient;
 import org.cloudfoundry.uaa.UaaClient;
 import org.cloudfoundry.uaa.clients.CreateClientRequest;
 import org.cloudfoundry.uaa.groups.AddMemberRequest;
@@ -55,7 +54,6 @@ import org.cloudfoundry.uaa.users.CreateUserRequest;
 import org.cloudfoundry.uaa.users.CreateUserResponse;
 import org.cloudfoundry.uaa.users.Email;
 import org.cloudfoundry.uaa.users.Name;
-import org.cloudfoundry.util.PaginationUtils;
 import org.cloudfoundry.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,8 +92,6 @@ public class IntegrationTestConfiguration {
         "cloud_controller.admin");
 
     private static final List<String> SCOPES = Arrays.asList(
-        "clients.admin",
-        "clients.secret",
         "cloud_controller.admin",
         "cloud_controller.read",
         "cloud_controller.write");
@@ -106,6 +102,18 @@ public class IntegrationTestConfiguration {
     @Qualifier("admin")
     ReactorCloudFoundryClient adminCloudFoundryClient(ConnectionContext connectionContext, @Value("${test.admin.password}") String password, @Value("${test.admin.username}") String username) {
         return ReactorCloudFoundryClient.builder()
+            .connectionContext(connectionContext)
+            .tokenProvider(PasswordGrantTokenProvider.builder()
+                .password(password)
+                .username(username)
+                .build())
+            .build();
+    }
+
+    @Bean
+    @Qualifier("admin")
+    NetworkingClient adminNetworkingClient(ConnectionContext connectionContext, @Value("${test.admin.password}") String password, @Value("${test.admin.username}") String username) {
+        return ReactorNetworkingClient.builder()
             .connectionContext(connectionContext)
             .tokenProvider(PasswordGrantTokenProvider.builder()
                 .password(password)
@@ -155,8 +163,10 @@ public class IntegrationTestConfiguration {
     }
 
     @Bean(initMethod = "clean", destroyMethod = "clean")
-    CloudFoundryCleaner cloudFoundryCleaner() {
-        return new CloudFoundryCleaner();
+    CloudFoundryCleaner cloudFoundryCleaner(@Qualifier("admin") CloudFoundryClient cloudFoundryClient, NameFactory nameFactory, @Qualifier("admin") NetworkingClient networkingClient,
+                                            @Qualifier("admin") UaaClient uaaClient) {
+
+        return new CloudFoundryCleaner(cloudFoundryClient, nameFactory, networkingClient, uaaClient);
     }
 
     @Bean
@@ -164,6 +174,16 @@ public class IntegrationTestConfiguration {
         return ReactorCloudFoundryClient.builder()
             .connectionContext(connectionContext)
             .tokenProvider(tokenProvider)
+            .build();
+    }
+
+    @Bean
+    @DependsOn({"organizationId", "spaceId"})
+    DefaultCloudFoundryOperations cloudFoundryOperations(CloudFoundryClient cloudFoundryClient, String organizationName, String spaceName) {
+        return DefaultCloudFoundryOperations.builder()
+            .cloudFoundryClient(cloudFoundryClient)
+            .organization(organizationName)
+            .space(spaceName)
             .build();
     }
 
@@ -199,24 +219,8 @@ public class IntegrationTestConfiguration {
     }
 
     @Bean
-    DopplerClient dopplerClient(ConnectionContext connectionContext, TokenProvider tokenProvider) {
-        return ReactorDopplerClient.builder()
-            .connectionContext(connectionContext)
-            .tokenProvider(tokenProvider)
-            .build();
-    }
-
-    @Bean
     RandomNameFactory nameFactory(Random random) {
         return new RandomNameFactory(random);
-    }
-
-    @Bean
-    NetworkingClient networkingClient(ConnectionContext connectionContext, TokenProvider tokenProvider) {
-        return ReactorNetworkingClient.builder()
-            .connectionContext(connectionContext)
-            .tokenProvider(tokenProvider)
-            .build();
     }
 
     @Bean(initMethod = "block")
@@ -274,32 +278,59 @@ public class IntegrationTestConfiguration {
     }
 
     @Bean
-    String planName(NameFactory nameFactory) {
-        return nameFactory.getPlanName();
-    }
-
-    @Bean
     SecureRandom random() {
         return new SecureRandom();
     }
 
     @Bean
-    RoutingClient routingClient(ConnectionContext connectionContext, TokenProvider tokenProvider) {
-        return ReactorRoutingClient.builder()
+    @DependsOn("schedulerServiceKey")
+    String schedulerApiEndpoint(CloudFoundryOperations cloudFoundryOperations, String schedulerServiceInstanceName, String schedulerServiceKeyName) {
+        return cloudFoundryOperations.services()
+            .getServiceKey(GetServiceKeyRequest.builder()
+                .serviceInstanceName(schedulerServiceInstanceName)
+                .serviceKeyName(schedulerServiceKeyName)
+                .build())
+            .map(serviceKey -> (String) serviceKey.getCredentials().get("api_endpoint"))
+            .block();
+    }
+
+    @Bean
+    ReactorSchedulerClient schedulerClient(ConnectionContext connectionContext, String schedulerApiEndpoint, TokenProvider tokenProvider) {
+        return ReactorSchedulerClient.builder()
             .connectionContext(connectionContext)
+            .root(Mono.just(schedulerApiEndpoint))
             .tokenProvider(tokenProvider)
             .build();
     }
 
+    @Bean(initMethod = "block")
+    Mono<Void> schedulerServiceInstance(CloudFoundryOperations cloudFoundryOperations, String schedulerServiceInstanceName) {
+        return cloudFoundryOperations.services()
+            .createInstance(CreateServiceInstanceRequest.builder()
+                .planName("standard")
+                .serviceInstanceName(schedulerServiceInstanceName)
+                .serviceName("scheduler-for-pcf")
+                .build());
+    }
+
     @Bean
-    Version serverVersion(@Qualifier("admin") CloudFoundryClient cloudFoundryClient) {
-        return cloudFoundryClient.info()
-            .get(GetInfoRequest.builder()
-                .build())
-            .map(response -> Version.valueOf(response.getApiVersion()))
-            .doOnSubscribe(s -> this.logger.debug(">> CLOUD FOUNDRY VERSION <<"))
-            .doOnSuccess(r -> this.logger.debug("<< CLOUD FOUNDRY VERSION >>"))
-            .block();
+    String schedulerServiceInstanceName(NameFactory nameFactory) {
+        return nameFactory.getServiceInstanceName();
+    }
+
+    @Bean(initMethod = "block")
+    @DependsOn("schedulerServiceInstance")
+    Mono<Void> schedulerServiceKey(CloudFoundryOperations cloudFoundryOperations, String schedulerServiceInstanceName, String schedulerServiceKeyName) {
+        return cloudFoundryOperations.services()
+            .createServiceKey(CreateServiceKeyRequest.builder()
+                .serviceInstanceName(schedulerServiceInstanceName)
+                .serviceKeyName(schedulerServiceKeyName)
+                .build());
+    }
+
+    @Bean
+    String schedulerServiceKeyName(NameFactory nameFactory) {
+        return nameFactory.getServiceKeyName();
     }
 
     @Bean(initMethod = "block")
@@ -323,28 +354,6 @@ public class IntegrationTestConfiguration {
         return nameFactory.getSpaceName();
     }
 
-    @Bean(initMethod = "block")
-    @DependsOn("cloudFoundryCleaner")
-    Mono<String> stackId(CloudFoundryClient cloudFoundryClient, String stackName) {
-        return PaginationUtils
-            .requestClientV2Resources(page -> cloudFoundryClient.stacks()
-                .list(ListStacksRequest.builder()
-                    .name(stackName)
-                    .page(page)
-                    .build()))
-            .single()
-            .map(ResourceUtils::getId)
-            .doOnSubscribe(s -> this.logger.debug(">> STACK ({}) <<", stackName))
-            .doOnError(Throwable::printStackTrace)
-            .doOnSuccess(id -> this.logger.debug("<< STACK ({})>>", id))
-            .cache();
-    }
-
-    @Bean
-    String stackName() {
-        return "cflinuxfs2";
-    }
-
     @Bean
     @DependsOn({"client", "userId"})
     PasswordGrantTokenProvider tokenProvider(String clientId, String clientSecret, String password, String username) {
@@ -353,14 +362,6 @@ public class IntegrationTestConfiguration {
             .clientSecret(clientSecret)
             .password(password)
             .username(username)
-            .build();
-    }
-
-    @Bean
-    ReactorUaaClient uaaClient(ConnectionContext connectionContext, TokenProvider tokenProvider) {
-        return ReactorUaaClient.builder()
-            .connectionContext(connectionContext)
-            .tokenProvider(tokenProvider)
             .build();
     }
 

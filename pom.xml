@@ -88,6 +88,11 @@
                 <version>${cf-java-client.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.cloudfoundry</groupId>
+                <artifactId>cloudfoundry-operations</artifactId>
+                <version>${cf-java-client.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.immutables</groupId>
                 <artifactId>value</artifactId>
                 <version>${immutables.version}</version>
