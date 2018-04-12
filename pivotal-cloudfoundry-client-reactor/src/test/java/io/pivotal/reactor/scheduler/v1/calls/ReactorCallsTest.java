@@ -38,6 +38,8 @@ import io.pivotal.scheduler.v1.calls.ListCallSchedulesRequest;
 import io.pivotal.scheduler.v1.calls.ListCallSchedulesResponse;
 import io.pivotal.scheduler.v1.calls.ListCallsRequest;
 import io.pivotal.scheduler.v1.calls.ListCallsResponse;
+import io.pivotal.scheduler.v1.calls.ScheduleCallRequest;
+import io.pivotal.scheduler.v1.calls.ScheduleCallResponse;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
@@ -313,6 +315,40 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                     .id("test-schedule-id")
                     .updatedAt("test-updated-at")
                     .build())
+                .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void schedule() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(POST).path("/calls/test-call-id/schedules")
+                .payload("fixtures/scheduler/v1/calls/POST_{id}_schedules_request.json")
+                .build())
+            .response(TestResponse.builder()
+                .status(CREATED)
+                .payload("fixtures/scheduler/v1/calls/POST_{id}_schedules_response.json")
+                .build())
+            .build());
+
+        this.calls
+            .schedule(ScheduleCallRequest.builder()
+                .callId("test-call-id")
+                .enabled(false)
+                .expression("test-expression")
+                .expressionType(CRON)
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ScheduleCallResponse.builder()
+                .callId("test-call-id")
+                .createdAt("test-created-at")
+                .enabled(false)
+                .expression("test-expression")
+                .expressionType(CRON)
+                .id("test-schedule-id")
+                .updatedAt("test-updated-at")
                 .build())
             .expectComplete()
             .verify(Duration.ofSeconds(5));

@@ -79,4 +79,12 @@ public interface Calls {
      */
     Mono<ListCallSchedulesResponse> listSchedules(ListCallSchedulesRequest request);
 
+    /**
+     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#schedules-a-call-to-run-later">Schedule a Call</a> request
+     *
+     * @param request the Schedule a Call request
+     * @return the response to the Schedule a Call request
+     */
+    Mono<ScheduleCallResponse> schedule(ScheduleCallRequest request);
+
 }
