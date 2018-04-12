@@ -21,6 +21,8 @@ import io.pivotal.scheduler.v1.calls.Calls;
 import io.pivotal.scheduler.v1.calls.CreateCallRequest;
 import io.pivotal.scheduler.v1.calls.CreateCallResponse;
 import io.pivotal.scheduler.v1.calls.DeleteCallRequest;
+import io.pivotal.scheduler.v1.calls.ExecuteCallRequest;
+import io.pivotal.scheduler.v1.calls.ExecuteCallResponse;
 import io.pivotal.scheduler.v1.calls.GetCallRequest;
 import io.pivotal.scheduler.v1.calls.GetCallResponse;
 import io.pivotal.scheduler.v1.calls.ListCallsRequest;
@@ -54,6 +56,12 @@ public class ReactorCalls extends AbstractSchedulerV1Operations implements Calls
     @Override
     public Mono<Void> delete(DeleteCallRequest request) {
         return delete(request, Void.class, builder -> builder.pathSegment("calls", request.getCallId()))
+            .checkpoint();
+    }
+
+    @Override
+    public Mono<ExecuteCallResponse> execute(ExecuteCallRequest request) {
+        return post(request, ExecuteCallResponse.class, builder -> builder.pathSegment("calls", request.getCallId(), "execute"))
             .checkpoint();
     }
 

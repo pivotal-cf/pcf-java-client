@@ -1,0 +1,10 @@
+{
+  "call_guid": "test-call-id",
+  "execution_end_time": "test-execution-end-time",
+  "execution_start_time": "test-execution-start-time",
+  "guid": "test-history-id",
+  "message": "test-message",
+  "schedule_guid": "test-schedule-id",
+  "scheduled_time": "test-scheduled-time",
+  "state": "test-state"
+}
