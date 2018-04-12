@@ -16,27 +16,19 @@
 
 package io.pivotal.scheduler.v1.calls;
 
-import reactor.core.publisher.Mono;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.immutables.value.Value;
 
 /**
- * Main entry point to the Calls API
+ * The request payload for the Delete a Call operation
  */
-public interface Calls {
+@Value.Immutable
+abstract class _DeleteCallRequest {
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#create-call">Create Call</a> request
-     *
-     * @param request the Create Call request
-     * @return the response to the Create Call request
+     * The call id
      */
-    Mono<CreateCallResponse> create(CreateCallRequest request);
-
-    /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#delete-a-call">Delete a Call</a> request
-     *
-     * @param request the Delete a Call request
-     * @return the response to the Delete a Call request
-     */
-    Mono<Void> delete(DeleteCallRequest request);
+    @JsonIgnore
+    abstract String getCallId();
 
 }
