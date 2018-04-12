@@ -1,0 +1,10 @@
+{
+  "app_guid": "test-application-id",
+  "auth_header": "test-authorization-header",
+  "created_at": "test-created-at",
+  "guid": "test-job-id",
+  "name": "test-name",
+  "space_guid": "test-space-id",
+  "updated_at": "test-updated-at",
+  "url": "test-url"
+}
