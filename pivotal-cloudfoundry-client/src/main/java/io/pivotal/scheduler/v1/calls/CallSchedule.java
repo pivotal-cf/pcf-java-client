@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1.jobs;
+package io.pivotal.scheduler.v1.calls;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.pivotal.scheduler.v1.ExpressionType;
@@ -22,9 +22,16 @@ import io.pivotal.scheduler.v1.Resource;
 import org.cloudfoundry.Nullable;
 
 /**
- * Base class for responses that are Job Schedules
+ * Base class for responses that are Call Schedules
  */
-public abstract class JobSchedule extends Resource {
+public abstract class CallSchedule extends Resource {
+
+    /**
+     * ID for the scheduled call
+     */
+    @JsonProperty("call_guid")
+    @Nullable
+    abstract String getCallId();
 
     /**
      * Schedule creation time
@@ -50,13 +57,6 @@ public abstract class JobSchedule extends Resource {
      */
     @JsonProperty("expression_type")
     abstract ExpressionType getExpressionType();
-
-    /**
-     * ID for the scheduled job
-     */
-    @JsonProperty("job_guid")
-    @Nullable
-    abstract String getJobId();
 
     /**
      * Schedule update time

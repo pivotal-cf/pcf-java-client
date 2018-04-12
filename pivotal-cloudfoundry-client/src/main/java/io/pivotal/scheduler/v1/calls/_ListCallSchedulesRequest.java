@@ -14,41 +14,22 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1.jobs;
+package io.pivotal.scheduler.v1.calls;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.pivotal.scheduler.v1.ExpressionType;
+import org.cloudfoundry.client.v3.PaginatedRequest;
 import org.immutables.value.Value;
 
 /**
- * The request payload for the Schedule Job operation
+ * The request payload for the List Call Schedules operation
  */
 @Value.Immutable
-abstract class _ScheduleJobRequest {
+abstract class _ListCallSchedulesRequest extends PaginatedRequest {
 
     /**
-     * Whether or not the schedule will run
-     */
-    @JsonProperty("enabled")
-    abstract Boolean getEnabled();
-
-    /**
-     * Expression defining when the scheduled item should run
-     */
-    @JsonProperty("expression")
-    abstract String getExpression();
-
-    /**
-     * Expression format
-     */
-    @JsonProperty("expression_type")
-    abstract ExpressionType getExpressionType();
-
-    /**
-     * The job id
+     * The call id
      */
     @JsonIgnore
-    abstract String getJobId();
+    abstract String getCallId();
 
 }
