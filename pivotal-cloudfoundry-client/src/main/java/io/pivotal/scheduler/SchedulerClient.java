@@ -16,12 +16,18 @@
 
 package io.pivotal.scheduler;
 
+import io.pivotal.scheduler.v1.calls.Calls;
 import io.pivotal.scheduler.v1.jobs.Jobs;
 
 /**
  * Main entry point to the Scheduler Client API
  */
 public interface SchedulerClient {
+
+    /**
+     * Main entry point to the Calls API
+     */
+    Calls calls();
 
     /**
      * Main entry point to the Jobs API
