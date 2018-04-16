@@ -17,6 +17,7 @@
 package io.pivotal.scheduler.v1;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cloudfoundry.Nullable;
 
 public abstract class Resource {
 
@@ -24,6 +25,7 @@ public abstract class Resource {
      * The resource's id
      */
     @JsonProperty("guid")
+    @Nullable
     public abstract String getId();
 
 }
