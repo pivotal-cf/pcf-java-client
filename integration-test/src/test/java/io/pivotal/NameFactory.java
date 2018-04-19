@@ -31,6 +31,10 @@ public interface NameFactory {
 
     String DOMAIN_PREFIX = "test.domain.";
 
+    String CALL_PREFIX = "test-call-";
+
+    String JOB_PREFIX = "test-job-";
+
     String GROUP_PREFIX = "test-group-";
 
     String HOST_PREFIX = "test-host-";
@@ -118,6 +122,24 @@ public interface NameFactory {
      */
     default String getDomainName() {
         return getName(DOMAIN_PREFIX);
+    }
+
+    /**
+     * Creates a call name
+     *
+     * @return the call name
+     */
+    default String getCallName() {
+        return getName(CALL_PREFIX);
+    }
+
+    /**
+     * Creates a jab name
+     *
+     * @return the job name
+     */
+    default String getJobName() {
+        return getName(JOB_PREFIX);
     }
 
     /**
@@ -398,6 +420,26 @@ public interface NameFactory {
      */
     default boolean isGroupName(String candidate) {
         return isName(GROUP_PREFIX, candidate);
+    }
+
+    /**
+     * Tests a name to determine if it is a call name
+     *
+     * @param candidate the candidate name
+     * @return {@code true} if the name is a call name, {@code false} otherwise
+     */
+    default boolean isCallName(String candidate) {
+        return isName(CALL_PREFIX, candidate);
+    }
+
+    /**
+     * Tests a name to determine if it is a job name
+     *
+     * @param candidate the candidate name
+     * @return {@code true} if the name is a job name, {@code false} otherwise
+     */
+    default boolean isJobName(String candidate) {
+        return isName(JOB_PREFIX, candidate);
     }
 
     /**

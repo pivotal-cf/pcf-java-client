@@ -16,8 +16,10 @@
 
 package io.pivotal.reactor.scheduler;
 
+import io.pivotal.reactor.scheduler.v1.calls.ReactorCalls;
 import io.pivotal.reactor.scheduler.v1.jobs.ReactorJobs;
 import io.pivotal.scheduler.SchedulerClient;
+import io.pivotal.scheduler.v1.calls.Calls;
 import io.pivotal.scheduler.v1.jobs.Jobs;
 import org.cloudfoundry.reactor.ConnectionContext;
 import org.cloudfoundry.reactor.TokenProvider;
@@ -29,6 +31,12 @@ import reactor.core.publisher.Mono;
  */
 @Value.Immutable
 abstract class _ReactorSchedulerClient implements SchedulerClient {
+
+    @Override
+    @Value.Derived
+    public Calls calls() {
+        return new ReactorCalls(getConnectionContext(), getRoot(), getTokenProvider());
+    }
 
     @Override
     @Value.Derived
