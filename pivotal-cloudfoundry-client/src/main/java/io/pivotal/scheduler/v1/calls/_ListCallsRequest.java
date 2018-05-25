@@ -16,8 +16,8 @@
 
 package io.pivotal.scheduler.v1.calls;
 
+import io.pivotal.scheduler.v1.PaginatedRequest;
 import org.cloudfoundry.QueryParameter;
-import org.cloudfoundry.client.v3.PaginatedRequest;
 import org.immutables.value.Value;
 
 /**
