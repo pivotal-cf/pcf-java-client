@@ -18,7 +18,9 @@ package io.pivotal.scheduler.v1;
 
 import io.pivotal.AbstractIntegrationTest;
 import io.pivotal.reactor.scheduler.ReactorSchedulerClient;
-import io.pivotal.scheduler.v1.calls.CallResource;
+import io.pivotal.scheduler.v1.calls.Call;
+import io.pivotal.scheduler.v1.calls.CallHistory;
+import io.pivotal.scheduler.v1.calls.CallSchedule;
 import io.pivotal.scheduler.v1.calls.CreateCallRequest;
 import io.pivotal.scheduler.v1.calls.CreateCallResponse;
 import io.pivotal.scheduler.v1.calls.DeleteCallRequest;
@@ -27,8 +29,6 @@ import io.pivotal.scheduler.v1.calls.ExecuteCallRequest;
 import io.pivotal.scheduler.v1.calls.ExecuteCallResponse;
 import io.pivotal.scheduler.v1.calls.GetCallRequest;
 import io.pivotal.scheduler.v1.calls.GetCallResponse;
-import io.pivotal.scheduler.v1.calls.CallHistoryResource;
-import io.pivotal.scheduler.v1.calls.CallScheduleResource;
 import io.pivotal.scheduler.v1.calls.ListCallHistoriesRequest;
 import io.pivotal.scheduler.v1.calls.ListCallScheduleHistoriesRequest;
 import io.pivotal.scheduler.v1.calls.ListCallSchedulesRequest;
@@ -49,12 +49,16 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuples;
 
-import static io.pivotal.scheduler.v1.ExpressionType.CRON;
+import java.time.Duration;
+
+import static io.pivotal.scheduler.v1.schedules.ExpressionType.CRON;
 import static org.cloudfoundry.util.tuple.TupleUtils.function;
 
 public final class CallsTest extends AbstractIntegrationTest {
 
-    private static final String CRON_EXPRESSION = "* * * * ? *";
+    private static final String CRON_EXPRESSION_FAST = "* * ? * * *";
+
+    private static final String CRON_EXPRESSION_SLOW = "* * * * ? 2099";
 
     @Autowired
     String schedulerServiceInstanceName;
@@ -131,7 +135,7 @@ public final class CallsTest extends AbstractIntegrationTest {
             .flatMap(applicationId -> createCallId(this.schedulerClient, applicationId, callName))
             .flatMap(callId -> Mono.zip(
                 Mono.just(callId),
-                createScheduleId(this.schedulerClient, callId)
+                createScheduleId(this.schedulerClient, callId, CRON_EXPRESSION_SLOW)
             ))
             .flatMap(function((callId, scheduleId) -> this.schedulerClient.calls()
                 .deleteSchedule(DeleteCallScheduleRequest.builder()
@@ -146,26 +150,6 @@ public final class CallsTest extends AbstractIntegrationTest {
                         .page(page)
                         .build())))
             .as(StepVerifier::create)
-            .verifyComplete();
-    }
-
-    @Test
-    public void get() {
-        String applicationName = this.nameFactory.getApplicationName();
-        String callName = this.nameFactory.getCallName();
-
-        this.spaceId
-            .flatMap(spaceId -> Mono.zip(
-                createApplicationId(this.cloudFoundryClient, applicationName, spaceId),
-                getSchedulerServiceId(this.cloudFoundryClient, this.schedulerServiceInstanceName)
-            ))
-            .flatMap(function((applicationId, schedulerId) -> requestCreateServiceBinding(this.cloudFoundryClient, applicationId, schedulerId)
-                .thenReturn(applicationId)))
-            .flatMap(applicationId -> createCallId(this.schedulerClient, applicationId, callName))
-            .flatMap(callId -> requestGetCall(this.schedulerClient, callId))
-            .map(GetCallResponse::getName)
-            .as(StepVerifier::create)
-            .expectNext(callName)
             .verifyComplete();
     }
 
@@ -193,6 +177,26 @@ public final class CallsTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void get() {
+        String applicationName = this.nameFactory.getApplicationName();
+        String callName = this.nameFactory.getCallName();
+
+        this.spaceId
+            .flatMap(spaceId -> Mono.zip(
+                createApplicationId(this.cloudFoundryClient, applicationName, spaceId),
+                getSchedulerServiceId(this.cloudFoundryClient, this.schedulerServiceInstanceName)
+            ))
+            .flatMap(function((applicationId, schedulerId) -> requestCreateServiceBinding(this.cloudFoundryClient, applicationId, schedulerId)
+                .thenReturn(applicationId)))
+            .flatMap(applicationId -> createCallId(this.schedulerClient, applicationId, callName))
+            .flatMap(callId -> requestGetCall(this.schedulerClient, callId))
+            .map(GetCallResponse::getName)
+            .as(StepVerifier::create)
+            .expectNext(callName)
+            .verifyComplete();
+    }
+
+    @Test
     public void list() {
         String applicationName = this.nameFactory.getApplicationName();
         String callName = this.nameFactory.getCallName();
@@ -216,7 +220,7 @@ public final class CallsTest extends AbstractIntegrationTest {
                         .spaceId(spaceId)
                         .build()))))
             .filter(resource -> callName.endsWith(resource.getName()))
-            .map(CallResource::getUrl)
+            .map(Call::getUrl)
             .as(StepVerifier::create)
             .expectNext("test.url")
             .verifyComplete();
@@ -245,35 +249,9 @@ public final class CallsTest extends AbstractIntegrationTest {
                         .callId(callId)
                         .page(page)
                         .build())))
-            .map(CallHistoryResource::getState)
+            .map(CallHistory::getState)
             .as(StepVerifier::create)
             .expectNext("PENDING")
-            .verifyComplete();
-    }
-
-    @Test
-    public void listSchedules() {
-        String applicationName = this.nameFactory.getApplicationName();
-        String callName = this.nameFactory.getCallName();
-
-        this.spaceId
-            .flatMap(spaceId -> Mono.zip(
-                createApplicationId(this.cloudFoundryClient, applicationName, spaceId),
-                getSchedulerServiceId(this.cloudFoundryClient, this.schedulerServiceInstanceName)
-            ))
-            .flatMap(function((applicationId, schedulerId) -> requestCreateServiceBinding(this.cloudFoundryClient, applicationId, schedulerId)
-                .thenReturn(applicationId)))
-            .flatMap(applicationId -> createCallId(this.schedulerClient, applicationId, callName))
-            .delayUntil(callId -> requestScheduleCall(this.schedulerClient, callId))
-            .flatMapMany(callId -> io.pivotal.reactor.util.PaginationUtils
-                .requestResources(page -> this.schedulerClient.calls()
-                    .listSchedules(ListCallSchedulesRequest.builder()
-                        .callId(callId)
-                        .page(page)
-                        .build())))
-            .map(CallScheduleResource::getExpression)
-            .as(StepVerifier::create)
-            .expectNext(CRON_EXPRESSION)
             .verifyComplete();
     }
 
@@ -292,8 +270,9 @@ public final class CallsTest extends AbstractIntegrationTest {
             .flatMap(applicationId -> createCallId(this.schedulerClient, applicationId, callName))
             .flatMap(callId -> Mono.zip(
                 Mono.just(callId),
-                createScheduleId(this.schedulerClient, callId)
+                createScheduleId(this.schedulerClient, callId, CRON_EXPRESSION_FAST)
             ))
+            .delayElement(Duration.ofSeconds(90))
             .flatMapMany(function((callId, scheduleId) -> io.pivotal.reactor.util.PaginationUtils
                 .requestResources(page -> this.schedulerClient.calls()
                     .listScheduleHistories(ListCallScheduleHistoriesRequest.builder()
@@ -301,7 +280,35 @@ public final class CallsTest extends AbstractIntegrationTest {
                         .page(page)
                         .scheduleId(scheduleId)
                         .build()))))
+            .next()
             .as(StepVerifier::create)
+            .expectNextCount(1)
+            .verifyComplete();
+    }
+
+    @Test
+    public void listSchedules() {
+        String applicationName = this.nameFactory.getApplicationName();
+        String callName = this.nameFactory.getCallName();
+
+        this.spaceId
+            .flatMap(spaceId -> Mono.zip(
+                createApplicationId(this.cloudFoundryClient, applicationName, spaceId),
+                getSchedulerServiceId(this.cloudFoundryClient, this.schedulerServiceInstanceName)
+            ))
+            .flatMap(function((applicationId, schedulerId) -> requestCreateServiceBinding(this.cloudFoundryClient, applicationId, schedulerId)
+                .thenReturn(applicationId)))
+            .flatMap(applicationId -> createCallId(this.schedulerClient, applicationId, callName))
+            .delayUntil(callId -> requestScheduleCall(this.schedulerClient, callId, CRON_EXPRESSION_SLOW))
+            .flatMapMany(callId -> io.pivotal.reactor.util.PaginationUtils
+                .requestResources(page -> this.schedulerClient.calls()
+                    .listSchedules(ListCallSchedulesRequest.builder()
+                        .callId(callId)
+                        .page(page)
+                        .build())))
+            .map(CallSchedule::getExpression)
+            .as(StepVerifier::create)
+            .expectNext(CRON_EXPRESSION_SLOW)
             .verifyComplete();
     }
 
@@ -321,7 +328,7 @@ public final class CallsTest extends AbstractIntegrationTest {
             .delayUntil(callId -> this.schedulerClient.calls()
                 .schedule(ScheduleCallRequest.builder()
                     .enabled(true)
-                    .expression(CRON_EXPRESSION)
+                    .expression(CRON_EXPRESSION_SLOW)
                     .expressionType(CRON)
                     .callId(callId)
                     .build()))
@@ -331,9 +338,9 @@ public final class CallsTest extends AbstractIntegrationTest {
                         .callId(callId)
                         .page(page)
                         .build())))
-            .map(CallScheduleResource::getExpression)
+            .map(CallSchedule::getExpression)
             .as(StepVerifier::create)
-            .expectNext(CRON_EXPRESSION)
+            .expectNext(CRON_EXPRESSION_SLOW)
             .verifyComplete();
     }
 
@@ -347,8 +354,8 @@ public final class CallsTest extends AbstractIntegrationTest {
             .map(CreateCallResponse::getId);
     }
 
-    private static Mono<String> createScheduleId(ReactorSchedulerClient schedulerClient, String callId) {
-        return requestScheduleCall(schedulerClient, callId)
+    private static Mono<String> createScheduleId(ReactorSchedulerClient schedulerClient, String callId, String cronExpression) {
+        return requestScheduleCall(schedulerClient, callId, cronExpression)
             .map(ScheduleCallResponse::getId);
     }
 
@@ -401,11 +408,11 @@ public final class CallsTest extends AbstractIntegrationTest {
                 .build());
     }
 
-    private static Mono<ScheduleCallResponse> requestScheduleCall(ReactorSchedulerClient schedulerClient, String callId) {
+    private static Mono<ScheduleCallResponse> requestScheduleCall(ReactorSchedulerClient schedulerClient, String callId, String cronExpression) {
         return schedulerClient.calls()
             .schedule(ScheduleCallRequest.builder()
                 .enabled(true)
-                .expression(CRON_EXPRESSION)
+                .expression(cronExpression)
                 .expressionType(CRON)
                 .callId(callId)
                 .build());

@@ -21,55 +21,57 @@ import io.pivotal.scheduler.v1.Resource;
 import org.cloudfoundry.Nullable;
 
 /**
- * Base class for responses that are Calls
+ * Base class for responses that are Call Histories
  */
-public abstract class Call extends Resource {
+public abstract class AbstractCallHistory extends Resource {
 
     /**
-     * ID of the application this job runs commands against
+     * The call ID
      */
-    @JsonProperty("app_guid")
+    @JsonProperty("call_guid")
     @Nullable
-    abstract String getApplicationId();
+    abstract String getCallId();
 
     /**
-     * Authorization header of the request made to the call’s Http endpoint
+     * Time when the associated schedule finished execution
      */
-    @JsonProperty("auth_header")
-    abstract String getAuthorizationHeader();
-
-    /**
-     * Call creation time
-     */
-    @JsonProperty("created_at")
+    @JsonProperty("execution_end_time")
     @Nullable
-    abstract String getCreatedAt();
+    abstract String getExecutionEndTime();
 
     /**
-     * Call name
+     * Time when the associated schedule started execution
      */
-    @JsonProperty("name")
+    @JsonProperty("execution_start_time")
     @Nullable
-    abstract String getName();
+    abstract String getExecutionStartTime();
 
     /**
-     * ID of the space containing the app associated with this call
+     * Output message of the scheduled execution
      */
-    @JsonProperty("space_guid")
+    @JsonProperty("message")
     @Nullable
-    abstract String getSpaceId();
+    abstract String getMessage();
 
     /**
-     * Last time the call was updated
+     * ID of the schedule associated to this history
      */
-    @JsonProperty("updated_at")
+    @JsonProperty("schedule_guid")
     @Nullable
-    abstract String getUpdatedAt();
+    abstract String getScheduleId();
 
     /**
-     * Endpoint where the call will make a request
+     * Time that the associated schedule was scheduled to execute
      */
-    @JsonProperty("url")
-    abstract String getUrl();
+    @JsonProperty("scheduled_time")
+    @Nullable
+    abstract String getScheduledTime();
+
+    /**
+     * History state
+     */
+    @JsonProperty("state")
+    @Nullable
+    abstract String getState();
 
 }

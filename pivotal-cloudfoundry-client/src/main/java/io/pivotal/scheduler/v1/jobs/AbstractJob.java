@@ -17,49 +17,58 @@
 package io.pivotal.scheduler.v1.jobs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.pivotal.scheduler.v1.ExpressionType;
 import io.pivotal.scheduler.v1.Resource;
 import org.cloudfoundry.Nullable;
 
 /**
- * Base class for responses that are Job Schedules
+ * Base class for responses that are Jobs
  */
-public abstract class JobSchedule extends Resource {
+public abstract class AbstractJob extends Resource {
 
     /**
-     * Schedule creation time
+     * ID of the application this job runs commands against
+     */
+    @JsonProperty("app_guid")
+    @Nullable
+    abstract String getApplicationId();
+
+    /**
+     * Command to be executed
+     */
+    @JsonProperty("command")
+    @Nullable
+    abstract String getCommand();
+
+    /**
+     * Time the job was created
      */
     @JsonProperty("created_at")
     @Nullable
     abstract String getCreatedAt();
 
     /**
-     * Whether the schedule is enabled
+     * Name of the job
      */
-    @JsonProperty("enabled")
-    abstract Boolean getEnabled();
-
-    /**
-     * Expression defining when the schedule will run
-     */
-    @JsonProperty("expression")
-    abstract String getExpression();
-
-    /**
-     * Schedule expression type
-     */
-    @JsonProperty("expression_type")
-    abstract ExpressionType getExpressionType();
-
-    /**
-     * ID for the scheduled job
-     */
-    @JsonProperty("job_guid")
+    @JsonProperty("name")
     @Nullable
-    abstract String getJobId();
+    abstract String getName();
 
     /**
-     * Schedule update time
+     * ID of the space that the app is running inside
+     */
+    @JsonProperty("space_guid")
+    @Nullable
+    abstract String getSpaceId();
+
+    /**
+     * Most recent state of the job
+     */
+    @JsonProperty("state")
+    @Nullable
+    abstract String getState();
+
+    /**
+     * Time when the job was last updated
      */
     @JsonProperty("updated_at")
     @Nullable

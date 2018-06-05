@@ -25,15 +25,13 @@ public interface NameFactory {
 
     String BUILDPACK_PREFIX = "test-buildpack-";
 
+    String CALL_PREFIX = "test-call-";
+
     String CLIENT_ID_PREFIX = "test-client-id-";
 
     String CLIENT_SECRET_PREFIX = "test-client-secret-";
 
     String DOMAIN_PREFIX = "test.domain.";
-
-    String CALL_PREFIX = "test-call-";
-
-    String JOB_PREFIX = "test-job-";
 
     String GROUP_PREFIX = "test-group-";
 
@@ -44,6 +42,8 @@ public interface NameFactory {
     String IDENTITY_ZONE_PREFIX = "test-identity-zone-";
 
     String ISOLATION_SEGMENT_PREFIX = "test-isolation-segment-";
+
+    String JOB_PREFIX = "test-job-";
 
     String ORGANIZATION_PREFIX = "test-organization-";
 
@@ -98,6 +98,15 @@ public interface NameFactory {
     }
 
     /**
+     * Creates a call name
+     *
+     * @return the call name
+     */
+    default String getCallName() {
+        return getName(CALL_PREFIX);
+    }
+
+    /**
      * Creates a client id
      *
      * @return the client id
@@ -122,24 +131,6 @@ public interface NameFactory {
      */
     default String getDomainName() {
         return getName(DOMAIN_PREFIX);
-    }
-
-    /**
-     * Creates a call name
-     *
-     * @return the call name
-     */
-    default String getCallName() {
-        return getName(CALL_PREFIX);
-    }
-
-    /**
-     * Creates a jab name
-     *
-     * @return the job name
-     */
-    default String getJobName() {
-        return getName(JOB_PREFIX);
     }
 
     /**
@@ -192,6 +183,15 @@ public interface NameFactory {
      */
     default String getIsolationSegmentName() {
         return getName(ISOLATION_SEGMENT_PREFIX);
+    }
+
+    /**
+     * Creates a jab name
+     *
+     * @return the job name
+     */
+    default String getJobName() {
+        return getName(JOB_PREFIX);
     }
 
     /**
@@ -383,6 +383,16 @@ public interface NameFactory {
     }
 
     /**
+     * Tests a name to determine if it is a call name
+     *
+     * @param candidate the candidate name
+     * @return {@code true} if the name is a call name, {@code false} otherwise
+     */
+    default boolean isCallName(String candidate) {
+        return isName(CALL_PREFIX, candidate);
+    }
+
+    /**
      * Tests a name to determine if it is a client id
      *
      * @param candidate the candidate name
@@ -420,26 +430,6 @@ public interface NameFactory {
      */
     default boolean isGroupName(String candidate) {
         return isName(GROUP_PREFIX, candidate);
-    }
-
-    /**
-     * Tests a name to determine if it is a call name
-     *
-     * @param candidate the candidate name
-     * @return {@code true} if the name is a call name, {@code false} otherwise
-     */
-    default boolean isCallName(String candidate) {
-        return isName(CALL_PREFIX, candidate);
-    }
-
-    /**
-     * Tests a name to determine if it is a job name
-     *
-     * @param candidate the candidate name
-     * @return {@code true} if the name is a job name, {@code false} otherwise
-     */
-    default boolean isJobName(String candidate) {
-        return isName(JOB_PREFIX, candidate);
     }
 
     /**
@@ -488,6 +478,16 @@ public interface NameFactory {
      */
     default boolean isIsolationSegmentName(String candidate) {
         return isName(ISOLATION_SEGMENT_PREFIX, candidate);
+    }
+
+    /**
+     * Tests a name to determine if it is a job name
+     *
+     * @param candidate the candidate name
+     * @return {@code true} if the name is a job name, {@code false} otherwise
+     */
+    default boolean isJobName(String candidate) {
+        return isName(JOB_PREFIX, candidate);
     }
 
     /**

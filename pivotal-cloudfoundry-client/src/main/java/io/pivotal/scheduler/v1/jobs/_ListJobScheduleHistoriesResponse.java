@@ -25,6 +25,6 @@ import org.immutables.value.Value;
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _ListJobScheduleHistoriesResponse extends PaginatedResponse<JobHistoryResource> {
+abstract class _ListJobScheduleHistoriesResponse extends PaginatedResponse<JobHistory> {
 
 }

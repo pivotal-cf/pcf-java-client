@@ -22,9 +22,9 @@ import io.pivotal.reactor.TestResponse;
 import io.pivotal.reactor.scheduler.AbstractSchedulerApiTest;
 import io.pivotal.scheduler.v1.Link;
 import io.pivotal.scheduler.v1.Pagination;
-import io.pivotal.scheduler.v1.calls.CallHistoryResource;
-import io.pivotal.scheduler.v1.calls.CallResource;
-import io.pivotal.scheduler.v1.calls.CallScheduleResource;
+import io.pivotal.scheduler.v1.calls.Call;
+import io.pivotal.scheduler.v1.calls.CallHistory;
+import io.pivotal.scheduler.v1.calls.CallSchedule;
 import io.pivotal.scheduler.v1.calls.CreateCallRequest;
 import io.pivotal.scheduler.v1.calls.CreateCallResponse;
 import io.pivotal.scheduler.v1.calls.DeleteCallRequest;
@@ -54,7 +54,7 @@ import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpResponseStatus.CREATED;
 import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.pivotal.scheduler.v1.ExpressionType.CRON;
+import static io.pivotal.scheduler.v1.schedules.ExpressionType.CRON;
 
 public final class ReactorCallsTest extends AbstractSchedulerApiTest {
 
@@ -232,7 +232,7 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                     .totalPages(1)
                     .totalResults(1)
                     .build())
-                .resource(CallResource.builder()
+                .resource(Call.builder()
                     .applicationId("test-application-id")
                     .authorizationHeader("test-authorization-header")
                     .createdAt("test-created-at")
@@ -281,7 +281,7 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                     .totalPages(1)
                     .totalResults(1)
                     .build())
-                .resource(CallHistoryResource.builder()
+                .resource(CallHistory.builder()
                     .callId("test-call-id")
                     .executionEndTime("test-execution-end-time")
                     .executionStartTime("test-execution-start-time")
@@ -331,7 +331,7 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                     .totalPages(1)
                     .totalResults(1)
                     .build())
-                .resource(CallHistoryResource.builder()
+                .resource(CallHistory.builder()
                     .callId("test-call-id")
                     .executionEndTime("test-execution-end-time")
                     .executionStartTime("test-execution-start-time")
@@ -380,7 +380,7 @@ public final class ReactorCallsTest extends AbstractSchedulerApiTest {
                     .totalPages(1)
                     .totalResults(1)
                     .build())
-                .resource(CallScheduleResource.builder()
+                .resource(CallSchedule.builder()
                     .callId("test-call-id")
                     .createdAt("test-created-at")
                     .enabled(false)

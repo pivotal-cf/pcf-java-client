@@ -30,9 +30,9 @@ import io.pivotal.scheduler.v1.jobs.ExecuteJobRequest;
 import io.pivotal.scheduler.v1.jobs.ExecuteJobResponse;
 import io.pivotal.scheduler.v1.jobs.GetJobRequest;
 import io.pivotal.scheduler.v1.jobs.GetJobResponse;
-import io.pivotal.scheduler.v1.jobs.JobHistoryResource;
-import io.pivotal.scheduler.v1.jobs.JobResource;
-import io.pivotal.scheduler.v1.jobs.JobScheduleResource;
+import io.pivotal.scheduler.v1.jobs.Job;
+import io.pivotal.scheduler.v1.jobs.JobHistory;
+import io.pivotal.scheduler.v1.jobs.JobSchedule;
 import io.pivotal.scheduler.v1.jobs.ListJobHistoriesRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobHistoriesResponse;
 import io.pivotal.scheduler.v1.jobs.ListJobScheduleHistoriesRequest;
@@ -47,6 +47,7 @@ import org.junit.Test;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
+import java.util.Collections;
 
 import static io.netty.handler.codec.http.HttpMethod.DELETE;
 import static io.netty.handler.codec.http.HttpMethod.GET;
@@ -54,7 +55,7 @@ import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpResponseStatus.CREATED;
 import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.pivotal.scheduler.v1.ExpressionType.CRON;
+import static io.pivotal.scheduler.v1.schedules.ExpressionType.CRON;
 
 public final class ReactorJobsTest extends AbstractSchedulerApiTest {
 
@@ -199,19 +200,20 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
     }
 
     @Test
-    public void list() {
+    public void listDetails() {
         mockRequest(InteractionContext.builder()
             .request(TestRequest.builder()
-                .method(GET).path("/jobs?space_guid=test-space-id")
+                .method(GET).path("/jobs?detailed=true&space_guid=test-space-id")
                 .build())
             .response(TestResponse.builder()
                 .status(OK)
-                .payload("fixtures/scheduler/v1/jobs/GET_{space_id}_response.json")
+                .payload("fixtures/scheduler/v1/jobs/GET_{space_id}_details_response.json")
                 .build())
             .build());
 
         this.jobs
             .list(ListJobsRequest.builder()
+                .detailed(true)
                 .spaceId("test-space-id")
                 .build())
             .as(StepVerifier::create)
@@ -232,13 +234,73 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                     .totalPages(1)
                     .totalResults(1)
                     .build())
-                .resource(JobResource.builder()
+                .resource(Job.builder()
                     .applicationId("test-application-id")
                     .command("test-command")
                     .createdAt("test-created-at")
                     .id("test-job-id")
                     .name("test-name")
                     .spaceId("test-space-id")
+                    .jobSchedules(Collections.singletonList(JobSchedule.builder()
+                        .createdAt("test-created-at")
+                        .enabled(false)
+                        .expression("test-expression")
+                        .expressionType(CRON)
+                        .id("test-schedule-id")
+                        .jobId("test-job-id")
+                        .updatedAt("test-updated-at")
+                        .build()))
+                    .state("test-state")
+                    .updatedAt("test-updated-at")
+                    .build())
+                .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void listEmptyDetails() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(GET).path("/jobs?detailed=true&space_guid=test-space-id")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/jobs/GET_{space_id}_empty_details_response.json")
+                .build())
+            .build());
+
+        this.jobs
+            .list(ListJobsRequest.builder()
+                .detailed(true)
+                .spaceId("test-space-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ListJobsResponse.builder()
+                .pagination(Pagination.builder()
+                    .first(Link.builder()
+                        .href("test-first-link")
+                        .build())
+                    .last(Link.builder()
+                        .href("test-last-link")
+                        .build())
+                    .next(Link.builder()
+                        .href("test-next-link")
+                        .build())
+                    .previous(Link.builder()
+                        .href("test-previous-link")
+                        .build())
+                    .totalPages(1)
+                    .totalResults(1)
+                    .build())
+                .resource(Job.builder()
+                    .applicationId("test-application-id")
+                    .command("test-command")
+                    .createdAt("test-created-at")
+                    .id("test-job-id")
+                    .name("test-name")
+                    .spaceId("test-space-id")
+                    .jobSchedules(Collections.emptyList())
                     .state("test-state")
                     .updatedAt("test-updated-at")
                     .build())
@@ -281,7 +343,7 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                     .totalPages(1)
                     .totalResults(1)
                     .build())
-                .resource(JobHistoryResource.builder()
+                .resource(JobHistory.builder()
                     .executionEndTime("test-execution-end-time")
                     .executionStartTime("test-execution-start-time")
                     .id("test-history-id")
@@ -291,6 +353,55 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                     .scheduledTime("test-scheduled-time")
                     .state("test-state")
                     .taskId("test-task-id")
+                    .build())
+                .build())
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    public void listNoDetails() {
+        mockRequest(InteractionContext.builder()
+            .request(TestRequest.builder()
+                .method(GET).path("/jobs?space_guid=test-space-id")
+                .build())
+            .response(TestResponse.builder()
+                .status(OK)
+                .payload("fixtures/scheduler/v1/jobs/GET_{space_id}_response.json")
+                .build())
+            .build());
+
+        this.jobs
+            .list(ListJobsRequest.builder()
+                .spaceId("test-space-id")
+                .build())
+            .as(StepVerifier::create)
+            .expectNext(ListJobsResponse.builder()
+                .pagination(Pagination.builder()
+                    .first(Link.builder()
+                        .href("test-first-link")
+                        .build())
+                    .last(Link.builder()
+                        .href("test-last-link")
+                        .build())
+                    .next(Link.builder()
+                        .href("test-next-link")
+                        .build())
+                    .previous(Link.builder()
+                        .href("test-previous-link")
+                        .build())
+                    .totalPages(1)
+                    .totalResults(1)
+                    .build())
+                .resource(Job.builder()
+                    .applicationId("test-application-id")
+                    .command("test-command")
+                    .createdAt("test-created-at")
+                    .id("test-job-id")
+                    .name("test-name")
+                    .spaceId("test-space-id")
+                    .state("test-state")
+                    .updatedAt("test-updated-at")
                     .build())
                 .build())
             .expectComplete()
@@ -332,7 +443,7 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                     .totalPages(1)
                     .totalResults(1)
                     .build())
-                .resource(JobHistoryResource.builder()
+                .resource(JobHistory.builder()
                     .executionEndTime("test-execution-end-time")
                     .executionStartTime("test-execution-start-time")
                     .id("test-history-id")
@@ -382,7 +493,7 @@ public final class ReactorJobsTest extends AbstractSchedulerApiTest {
                     .totalPages(1)
                     .totalResults(1)
                     .build())
-                .resource(JobScheduleResource.builder()
+                .resource(JobSchedule.builder()
                     .createdAt("test-created-at")
                     .enabled(false)
                     .expression("test-expression")

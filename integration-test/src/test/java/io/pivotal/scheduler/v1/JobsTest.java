@@ -26,9 +26,9 @@ import io.pivotal.scheduler.v1.jobs.ExecuteJobRequest;
 import io.pivotal.scheduler.v1.jobs.ExecuteJobResponse;
 import io.pivotal.scheduler.v1.jobs.GetJobRequest;
 import io.pivotal.scheduler.v1.jobs.GetJobResponse;
-import io.pivotal.scheduler.v1.jobs.JobHistoryResource;
-import io.pivotal.scheduler.v1.jobs.JobResource;
-import io.pivotal.scheduler.v1.jobs.JobScheduleResource;
+import io.pivotal.scheduler.v1.jobs.Job;
+import io.pivotal.scheduler.v1.jobs.JobHistory;
+import io.pivotal.scheduler.v1.jobs.JobSchedule;
 import io.pivotal.scheduler.v1.jobs.ListJobHistoriesRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobScheduleHistoriesRequest;
 import io.pivotal.scheduler.v1.jobs.ListJobSchedulesRequest;
@@ -45,16 +45,22 @@ import org.cloudfoundry.util.PaginationUtils;
 import org.cloudfoundry.util.ResourceUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuples;
 
-import static io.pivotal.scheduler.v1.ExpressionType.CRON;
+import java.time.Duration;
+import java.util.Optional;
+
+import static io.pivotal.scheduler.v1.schedules.ExpressionType.CRON;
 import static org.cloudfoundry.util.tuple.TupleUtils.function;
 
 public final class JobsTest extends AbstractIntegrationTest {
 
-    private static final String CRON_EXPRESSION = "* * * * ? *";
+    private static final String CRON_EXPRESSION_FAST = "* * ? * * *";
+
+    private static final String CRON_EXPRESSION_SLOW = "* * * * ? 2099";
 
     @Autowired
     String schedulerServiceInstanceName;
@@ -130,7 +136,7 @@ public final class JobsTest extends AbstractIntegrationTest {
             .flatMap(applicationId -> createJobId(this.schedulerClient, applicationId, jobName))
             .flatMap(jobId -> Mono.zip(
                 Mono.just(jobId),
-                createScheduleId(this.schedulerClient, jobId)
+                createScheduleId(this.schedulerClient, CRON_EXPRESSION_SLOW, jobId)
             ))
             .flatMap(function((jobId, scheduleId) -> this.schedulerClient.jobs()
                 .deleteSchedule(DeleteJobScheduleRequest.builder()
@@ -138,33 +144,8 @@ public final class JobsTest extends AbstractIntegrationTest {
                     .scheduleId(scheduleId)
                     .build())
                 .thenReturn(jobId)))
-            .flatMapMany(jobId -> io.pivotal.reactor.util.PaginationUtils
-                .requestResources(page -> this.schedulerClient.jobs()
-                    .listSchedules(ListJobSchedulesRequest.builder()
-                        .jobId(jobId)
-                        .page(page)
-                        .build())))
+            .flatMapMany(jobId -> requestListJobSchedules(this.schedulerClient, jobId))
             .as(StepVerifier::create)
-            .verifyComplete();
-    }
-
-    @Test
-    public void get() {
-        String applicationName = this.nameFactory.getApplicationName();
-        String jobName = this.nameFactory.getJobName();
-
-        this.spaceId
-            .flatMap(spaceId -> Mono.zip(
-                createApplicationId(this.cloudFoundryClient, applicationName, spaceId),
-                getSchedulerServiceId(this.cloudFoundryClient, this.schedulerServiceInstanceName)
-            ))
-            .flatMap(function((applicationId, schedulerId) -> requestCreateServiceBinding(this.cloudFoundryClient, applicationId, schedulerId)
-                .thenReturn(applicationId)))
-            .flatMap(applicationId -> createJobId(this.schedulerClient, applicationId, jobName))
-            .flatMap(jobId -> requestGetJob(this.schedulerClient, jobId))
-            .map(GetJobResponse::getName)
-            .as(StepVerifier::create)
-            .expectNext(jobName)
             .verifyComplete();
     }
 
@@ -192,6 +173,29 @@ public final class JobsTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void get() {
+        String applicationName = this.nameFactory.getApplicationName();
+        String jobName = this.nameFactory.getJobName();
+
+        this.spaceId
+            .flatMap(spaceId -> Mono.zip(
+                createApplicationId(this.cloudFoundryClient, applicationName, spaceId),
+                getSchedulerServiceId(this.cloudFoundryClient, this.schedulerServiceInstanceName)
+            ))
+            .flatMap(function((applicationId, schedulerId) -> requestCreateServiceBinding(this.cloudFoundryClient, applicationId, schedulerId)
+                .thenReturn(applicationId)))
+            .flatMap(applicationId -> createJobId(this.schedulerClient, applicationId, jobName))
+            .flatMap(jobId -> this.schedulerClient.jobs()
+                .get(GetJobRequest.builder()
+                    .jobId(jobId)
+                    .build()))
+            .map(GetJobResponse::getName)
+            .as(StepVerifier::create)
+            .expectNext(jobName)
+            .verifyComplete();
+    }
+
+    @Test
     public void list() {
         String applicationName = this.nameFactory.getApplicationName();
         String jobName = this.nameFactory.getJobName();
@@ -215,9 +219,72 @@ public final class JobsTest extends AbstractIntegrationTest {
                         .spaceId(spaceId)
                         .build()))))
             .filter(resource -> jobName.endsWith(resource.getName()))
-            .map(JobResource::getCommand)
+            .map(Job::getCommand)
             .as(StepVerifier::create)
             .expectNext("ls")
+            .verifyComplete();
+    }
+
+    @Test
+    public void listDetailed() {
+        String applicationName = this.nameFactory.getApplicationName();
+        String jobName = this.nameFactory.getJobName();
+
+        this.spaceId
+            .flatMap(spaceId -> Mono.zip(
+                createApplicationId(this.cloudFoundryClient, applicationName, spaceId),
+                getSchedulerServiceId(this.cloudFoundryClient, this.schedulerServiceInstanceName),
+                Mono.just(spaceId)
+            ))
+            .flatMap(function((applicationId, schedulerId, spaceId) -> requestCreateServiceBinding(this.cloudFoundryClient, applicationId, schedulerId)
+                .thenReturn(Tuples.of(applicationId, spaceId))))
+            .flatMap(function((applicationId, spaceId) -> Mono.zip(
+                createJobId(this.schedulerClient, applicationId, jobName),
+                Mono.just(spaceId)
+            )))
+            .flatMap(function((jobId, spaceId) -> requestScheduleJob(this.schedulerClient, CRON_EXPRESSION_SLOW, jobId)
+                .thenReturn(spaceId)))
+            .flatMapMany(spaceId -> io.pivotal.reactor.util.PaginationUtils
+                .requestResources(page -> this.schedulerClient.jobs()
+                    .list(ListJobsRequest.builder()
+                        .detailed(true)
+                        .page(page)
+                        .spaceId(spaceId)
+                        .build())))
+            .filter(resource -> jobName.endsWith(resource.getName()))
+            .flatMapIterable(Job::getJobSchedules)
+            .map(JobSchedule::getExpression)
+            .as(StepVerifier::create)
+            .expectNext(CRON_EXPRESSION_SLOW)
+            .verifyComplete();
+    }
+
+    @Test
+    public void listDetailedNoSchedules() {
+        String applicationName = this.nameFactory.getApplicationName();
+        String jobName = this.nameFactory.getJobName();
+
+        this.spaceId
+            .flatMap(spaceId -> Mono.zip(
+                createApplicationId(this.cloudFoundryClient, applicationName, spaceId),
+                getSchedulerServiceId(this.cloudFoundryClient, this.schedulerServiceInstanceName),
+                Mono.just(spaceId)
+            ))
+            .flatMap(function((applicationId, schedulerId, spaceId) -> requestCreateServiceBinding(this.cloudFoundryClient, applicationId, schedulerId)
+                .thenReturn(Tuples.of(applicationId, spaceId))))
+            .flatMap(function((applicationId, spaceId) -> createJobId(this.schedulerClient, applicationId, jobName)
+                .thenReturn(spaceId)))
+            .flatMapMany(spaceId -> io.pivotal.reactor.util.PaginationUtils
+                .requestResources(page -> this.schedulerClient.jobs()
+                    .list(ListJobsRequest.builder()
+                        .detailed(true)
+                        .page(page)
+                        .spaceId(spaceId)
+                        .build())))
+            .filter(resource -> jobName.endsWith(resource.getName()))
+            .map(job -> Optional.ofNullable(job.getJobSchedules()))
+            .as(StepVerifier::create)
+            .expectNext(Optional.empty())
             .verifyComplete();
     }
 
@@ -241,42 +308,9 @@ public final class JobsTest extends AbstractIntegrationTest {
                         .jobId(jobId)
                         .page(page)
                         .build())))
-            .map(JobHistoryResource::getState)
+            .map(JobHistory::getState)
             .as(StepVerifier::create)
             .expectNext("FAILED")
-            .verifyComplete();
-    }
-
-    private static Mono<ExecuteJobResponse> requestExecuteJob(ReactorSchedulerClient schedulerClient, String jobId) {
-        return schedulerClient.jobs()
-            .execute(ExecuteJobRequest.builder()
-                .jobId(jobId)
-                .build());
-    }
-
-    @Test
-    public void listSchedules() {
-        String applicationName = this.nameFactory.getApplicationName();
-        String jobName = this.nameFactory.getJobName();
-
-        this.spaceId
-            .flatMap(spaceId -> Mono.zip(
-                createApplicationId(this.cloudFoundryClient, applicationName, spaceId),
-                getSchedulerServiceId(this.cloudFoundryClient, this.schedulerServiceInstanceName)
-            ))
-            .flatMap(function((applicationId, schedulerId) -> requestCreateServiceBinding(this.cloudFoundryClient, applicationId, schedulerId)
-                .thenReturn(applicationId)))
-            .flatMap(applicationId -> createJobId(this.schedulerClient, applicationId, jobName))
-            .delayUntil(jobId -> requestScheduleJob(this.schedulerClient, jobId))
-            .flatMapMany(jobId -> io.pivotal.reactor.util.PaginationUtils
-                .requestResources(page -> this.schedulerClient.jobs()
-                    .listSchedules(ListJobSchedulesRequest.builder()
-                        .jobId(jobId)
-                        .page(page)
-                        .build())))
-            .map(JobScheduleResource::getExpression)
-            .as(StepVerifier::create)
-            .expectNext(CRON_EXPRESSION)
             .verifyComplete();
     }
 
@@ -295,8 +329,9 @@ public final class JobsTest extends AbstractIntegrationTest {
             .flatMap(applicationId -> createJobId(this.schedulerClient, applicationId, jobName))
             .flatMap(jobId -> Mono.zip(
                 Mono.just(jobId),
-                createScheduleId(this.schedulerClient, jobId)
+                createScheduleId(this.schedulerClient, CRON_EXPRESSION_FAST, jobId)
             ))
+            .delayElement(Duration.ofSeconds(90))
             .flatMapMany(function((jobId, scheduleId) -> io.pivotal.reactor.util.PaginationUtils
                 .requestResources(page -> this.schedulerClient.jobs()
                     .listScheduleHistories(ListJobScheduleHistoriesRequest.builder()
@@ -304,7 +339,35 @@ public final class JobsTest extends AbstractIntegrationTest {
                         .page(page)
                         .scheduleId(scheduleId)
                         .build()))))
+            .next()
             .as(StepVerifier::create)
+            .expectNextCount(1)
+            .verifyComplete();
+    }
+
+    @Test
+    public void listSchedules() {
+        String applicationName = this.nameFactory.getApplicationName();
+        String jobName = this.nameFactory.getJobName();
+
+        this.spaceId
+            .flatMap(spaceId -> Mono.zip(
+                createApplicationId(this.cloudFoundryClient, applicationName, spaceId),
+                getSchedulerServiceId(this.cloudFoundryClient, this.schedulerServiceInstanceName)
+            ))
+            .flatMap(function((applicationId, schedulerId) -> requestCreateServiceBinding(this.cloudFoundryClient, applicationId, schedulerId)
+                .thenReturn(applicationId)))
+            .flatMap(applicationId -> createJobId(this.schedulerClient, applicationId, jobName))
+            .delayUntil(jobId -> requestScheduleJob(this.schedulerClient, CRON_EXPRESSION_SLOW, jobId))
+            .flatMapMany(jobId -> io.pivotal.reactor.util.PaginationUtils
+                .requestResources(page -> this.schedulerClient.jobs()
+                    .listSchedules(ListJobSchedulesRequest.builder()
+                        .jobId(jobId)
+                        .page(page)
+                        .build())))
+            .map(JobSchedule::getExpression)
+            .as(StepVerifier::create)
+            .expectNext(CRON_EXPRESSION_SLOW)
             .verifyComplete();
     }
 
@@ -324,19 +387,14 @@ public final class JobsTest extends AbstractIntegrationTest {
             .delayUntil(jobId -> this.schedulerClient.jobs()
                 .schedule(ScheduleJobRequest.builder()
                     .enabled(true)
-                    .expression(CRON_EXPRESSION)
+                    .expression(CRON_EXPRESSION_SLOW)
                     .expressionType(CRON)
                     .jobId(jobId)
                     .build()))
-            .flatMapMany(jobId -> io.pivotal.reactor.util.PaginationUtils
-                .requestResources(page -> this.schedulerClient.jobs()
-                    .listSchedules(ListJobSchedulesRequest.builder()
-                        .jobId(jobId)
-                        .page(page)
-                        .build())))
-            .map(JobScheduleResource::getExpression)
+            .flatMapMany(jobId -> requestListJobSchedules(this.schedulerClient, jobId))
+            .map(JobSchedule::getExpression)
             .as(StepVerifier::create)
-            .expectNext(CRON_EXPRESSION)
+            .expectNext(CRON_EXPRESSION_SLOW)
             .verifyComplete();
     }
 
@@ -350,8 +408,8 @@ public final class JobsTest extends AbstractIntegrationTest {
             .map(CreateJobResponse::getId);
     }
 
-    private static Mono<String> createScheduleId(ReactorSchedulerClient schedulerClient, String jobId) {
-        return requestScheduleJob(schedulerClient, jobId)
+    private static Mono<String> createScheduleId(ReactorSchedulerClient schedulerClient, String cronExpression, String jobId) {
+        return requestScheduleJob(schedulerClient, cronExpression, jobId)
             .map(ScheduleJobResponse::getId);
     }
 
@@ -396,6 +454,13 @@ public final class JobsTest extends AbstractIntegrationTest {
                 .build());
     }
 
+    private static Mono<ExecuteJobResponse> requestExecuteJob(ReactorSchedulerClient schedulerClient, String jobId) {
+        return schedulerClient.jobs()
+            .execute(ExecuteJobRequest.builder()
+                .jobId(jobId)
+                .build());
+    }
+
     private static Mono<GetJobResponse> requestGetJob(ReactorSchedulerClient schedulerClient, String jobId) {
         return schedulerClient.jobs()
             .get(GetJobRequest.builder()
@@ -403,11 +468,20 @@ public final class JobsTest extends AbstractIntegrationTest {
                 .build());
     }
 
-    private static Mono<ScheduleJobResponse> requestScheduleJob(ReactorSchedulerClient schedulerClient, String jobId) {
+    private static Flux<JobSchedule> requestListJobSchedules(ReactorSchedulerClient schedulerClient, String jobId) {
+        return io.pivotal.reactor.util.PaginationUtils
+            .requestResources(page -> schedulerClient.jobs()
+                .listSchedules(ListJobSchedulesRequest.builder()
+                    .jobId(jobId)
+                    .page(page)
+                    .build()));
+    }
+
+    private static Mono<ScheduleJobResponse> requestScheduleJob(ReactorSchedulerClient schedulerClient, String cronExpression, String jobId) {
         return schedulerClient.jobs()
             .schedule(ScheduleJobRequest.builder()
                 .enabled(true)
-                .expression(CRON_EXPRESSION)
+                .expression(cronExpression)
                 .expressionType(CRON)
                 .jobId(jobId)
                 .build());

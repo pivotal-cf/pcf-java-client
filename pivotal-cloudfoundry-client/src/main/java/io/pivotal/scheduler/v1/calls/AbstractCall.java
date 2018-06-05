@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1.jobs;
+package io.pivotal.scheduler.v1.calls;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.pivotal.scheduler.v1.Resource;
 import org.cloudfoundry.Nullable;
 
 /**
- * Base class for responses that are Jobs
+ * Base class for responses that are Calls
  */
-public abstract class Job extends Resource {
+public abstract class AbstractCall extends Resource {
 
     /**
      * ID of the application this job runs commands against
@@ -33,45 +33,43 @@ public abstract class Job extends Resource {
     abstract String getApplicationId();
 
     /**
-     * Command to be executed
+     * Authorization header of the request made to the call’s Http endpoint
      */
-    @JsonProperty("command")
-    @Nullable
-    abstract String getCommand();
+    @JsonProperty("auth_header")
+    abstract String getAuthorizationHeader();
 
     /**
-     * Time the job was created
+     * Call creation time
      */
     @JsonProperty("created_at")
     @Nullable
     abstract String getCreatedAt();
 
     /**
-     * Name of the job
+     * Call name
      */
     @JsonProperty("name")
     @Nullable
     abstract String getName();
 
     /**
-     * ID of the space that the app is running inside
+     * ID of the space containing the app associated with this call
      */
     @JsonProperty("space_guid")
     @Nullable
     abstract String getSpaceId();
 
     /**
-     * Most recent state of the job
-     */
-    @JsonProperty("state")
-    @Nullable
-    abstract String getState();
-
-    /**
-     * Time when the job was last updated
+     * Last time the call was updated
      */
     @JsonProperty("updated_at")
     @Nullable
     abstract String getUpdatedAt();
+
+    /**
+     * Endpoint where the call will make a request
+     */
+    @JsonProperty("url")
+    abstract String getUrl();
 
 }

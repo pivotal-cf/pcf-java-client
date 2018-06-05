@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1;
+package io.pivotal.scheduler.v1.schedules;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -27,7 +27,12 @@ public enum ExpressionType {
     /**
      * The cron expression type
      */
-    CRON("cron_expression");
+    CRON("cron_expression"),
+
+    /**
+     * The execute type
+     */
+    EXECUTE("execute");
 
     private final String value;
 
@@ -40,6 +45,8 @@ public enum ExpressionType {
         switch (s.toLowerCase()) {
             case "cron_expression":
                 return CRON;
+            case "execute":
+                return EXECUTE;
             default:
                 throw new IllegalArgumentException(String.format("Unknown expression type: %s", s));
         }
