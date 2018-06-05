@@ -24,6 +24,6 @@ import org.immutables.value.Value;
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _GetJobResponse extends Job {
+abstract class _GetJobResponse extends AbstractJob {
 
 }

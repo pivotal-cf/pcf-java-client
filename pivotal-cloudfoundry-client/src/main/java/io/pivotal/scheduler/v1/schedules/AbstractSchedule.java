@@ -14,55 +14,47 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1.calls;
+package io.pivotal.scheduler.v1.schedules;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.pivotal.scheduler.v1.ExpressionType;
 import io.pivotal.scheduler.v1.Resource;
 import org.cloudfoundry.Nullable;
 
-/**
- * Base class for responses that are Call Schedules
- */
-public abstract class CallSchedule extends Resource {
-
-    /**
-     * ID for the scheduled call
-     */
-    @JsonProperty("call_guid")
-    @Nullable
-    abstract String getCallId();
+public abstract class AbstractSchedule extends Resource {
 
     /**
      * Schedule creation time
      */
     @JsonProperty("created_at")
     @Nullable
-    abstract String getCreatedAt();
+    public abstract String getCreatedAt();
 
     /**
      * Whether the schedule is enabled
      */
     @JsonProperty("enabled")
-    abstract Boolean getEnabled();
+    @Nullable
+    public abstract Boolean getEnabled();
 
     /**
      * Expression defining when the schedule will run
      */
     @JsonProperty("expression")
-    abstract String getExpression();
+    @Nullable
+    public abstract String getExpression();
 
     /**
      * Schedule expression type
      */
     @JsonProperty("expression_type")
-    abstract ExpressionType getExpressionType();
+    @Nullable
+    public abstract ExpressionType getExpressionType();
 
     /**
      * Schedule update time
      */
     @JsonProperty("updated_at")
     @Nullable
-    abstract String getUpdatedAt();
+    public abstract String getUpdatedAt();
 
 }

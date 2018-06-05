@@ -24,6 +24,6 @@ import org.immutables.value.Value;
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _GetCallResponse extends Call {
+abstract class _GetCallResponse extends AbstractCall {
 
 }

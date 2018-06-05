@@ -16,14 +16,20 @@
 
 package io.pivotal.scheduler.v1.calls;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.immutables.value.Value;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.pivotal.scheduler.v1.schedules.AbstractSchedule;
+import org.cloudfoundry.Nullable;
 
 /**
- * The Resource response payload for the List Call Histories operation
+ * Base class for responses that are Call Schedules
  */
-@JsonDeserialize
-@Value.Immutable
-abstract class _CallHistoryResource extends CallHistory {
+public abstract class AbstractCallSchedule extends AbstractSchedule {
+
+    /**
+     * ID for the scheduled call
+     */
+    @JsonProperty("call_guid")
+    @Nullable
+    abstract String getCallId();
 
 }

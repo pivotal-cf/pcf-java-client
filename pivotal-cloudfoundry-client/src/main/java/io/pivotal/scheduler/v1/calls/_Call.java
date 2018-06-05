@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
 /**
- * The Resource response payload for the List Call Schedules operation
+ * The Resource response payload for the List Calls operation
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _CallScheduleResource extends CallSchedule {
+abstract class _Call extends AbstractCall {
 
 }

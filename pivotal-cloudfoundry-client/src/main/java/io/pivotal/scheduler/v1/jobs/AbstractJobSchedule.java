@@ -16,14 +16,20 @@
 
 package io.pivotal.scheduler.v1.jobs;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.immutables.value.Value;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.pivotal.scheduler.v1.schedules.AbstractSchedule;
+import org.cloudfoundry.Nullable;
 
 /**
- * The Resource response payload for the List Jobs operation
+ * Base class for responses that are Job Schedules
  */
-@JsonDeserialize
-@Value.Immutable
-abstract class _JobResource extends Job {
+public abstract class AbstractJobSchedule extends AbstractSchedule {
+
+    /**
+     * ID for the scheduled job
+     */
+    @JsonProperty("job_guid")
+    @Nullable
+    abstract String getJobId();
 
 }

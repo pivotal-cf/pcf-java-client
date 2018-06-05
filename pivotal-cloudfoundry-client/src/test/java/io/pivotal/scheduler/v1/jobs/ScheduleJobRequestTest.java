@@ -18,7 +18,7 @@ package io.pivotal.scheduler.v1.jobs;
 
 import org.junit.Test;
 
-import static io.pivotal.scheduler.v1.ExpressionType.CRON;
+import static io.pivotal.scheduler.v1.schedules.ExpressionType.CRON;
 
 public class ScheduleJobRequestTest {
 

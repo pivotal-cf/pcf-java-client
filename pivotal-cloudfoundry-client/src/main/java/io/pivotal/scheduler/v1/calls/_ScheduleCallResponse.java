@@ -24,6 +24,6 @@ import org.immutables.value.Value;
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _ScheduleCallResponse extends CallSchedule {
+abstract class _ScheduleCallResponse extends AbstractCallSchedule {
 
 }
