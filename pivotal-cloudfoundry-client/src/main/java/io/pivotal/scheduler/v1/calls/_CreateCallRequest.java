@@ -17,6 +17,7 @@
 package io.pivotal.scheduler.v1.calls;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.Nullable;
 import org.cloudfoundry.QueryParameter;
 import org.immutables.value.Value;
@@ -24,6 +25,7 @@ import org.immutables.value.Value;
 /**
  * The request payload for the Create Call operation
  */
+@JsonSerialize
 @Value.Immutable
 abstract class _CreateCallRequest {
 

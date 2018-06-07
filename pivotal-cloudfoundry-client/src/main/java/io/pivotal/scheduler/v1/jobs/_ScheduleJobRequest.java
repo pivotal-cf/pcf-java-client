@@ -18,12 +18,14 @@ package io.pivotal.scheduler.v1.jobs;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.pivotal.scheduler.v1.ExpressionType;
 import org.immutables.value.Value;
 
 /**
  * The request payload for the Schedule Job operation
  */
+@JsonSerialize
 @Value.Immutable
 abstract class _ScheduleJobRequest {
 
