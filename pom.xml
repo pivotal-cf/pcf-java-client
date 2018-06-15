@@ -26,7 +26,7 @@
     <parent>
         <groupId>io.spring.platform</groupId>
         <artifactId>platform-bom</artifactId>
-        <version>Brussels-SR7</version>
+        <version>Brussels-SR10</version>
     </parent>
 
     <groupId>io.pivotal</groupId>
@@ -42,12 +42,12 @@
     </modules>
 
     <properties>
-        <assertj.version>3.9.0</assertj.version>
-        <cf-java-client.version>3.8.0.RELEASE</cf-java-client.version>
-        <immutables.version>2.5.6</immutables.version>
+        <assertj.version>3.10.0</assertj.version>
+        <cf-java-client.version>3.11.0.RELEASE</cf-java-client.version>
+        <immutables.version>2.6.1</immutables.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <reactor-core.version>3.1.5.RELEASE</reactor-core.version>
-        <reactor-netty.version>0.7.5.RELEASE</reactor-netty.version>
+        <reactor-core.version>3.1.8.RELEASE</reactor-core.version>
+        <reactor-netty.version>0.7.8.RELEASE</reactor-netty.version>
     </properties>
 
     <dependencyManagement>
