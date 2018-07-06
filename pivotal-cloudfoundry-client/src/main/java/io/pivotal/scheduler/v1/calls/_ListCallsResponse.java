@@ -25,6 +25,6 @@ import org.immutables.value.Value;
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _ListCallsResponse extends PaginatedResponse<CallResource> {
+abstract class _ListCallsResponse extends PaginatedResponse<Call> {
 
 }

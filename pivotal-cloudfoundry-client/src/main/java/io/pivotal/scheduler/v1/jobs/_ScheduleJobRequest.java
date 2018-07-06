@@ -19,7 +19,7 @@ package io.pivotal.scheduler.v1.jobs;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.pivotal.scheduler.v1.ExpressionType;
+import io.pivotal.scheduler.v1.schedules.ExpressionType;
 import org.immutables.value.Value;
 
 /**

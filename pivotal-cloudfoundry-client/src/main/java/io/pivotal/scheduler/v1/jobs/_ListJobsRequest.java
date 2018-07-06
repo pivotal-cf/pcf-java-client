@@ -17,6 +17,7 @@
 package io.pivotal.scheduler.v1.jobs;
 
 import io.pivotal.scheduler.v1.PaginatedRequest;
+import org.cloudfoundry.Nullable;
 import org.cloudfoundry.QueryParameter;
 import org.immutables.value.Value;
 
@@ -25,6 +26,13 @@ import org.immutables.value.Value;
  */
 @Value.Immutable
 abstract class _ListJobsRequest extends PaginatedRequest {
+
+    /**
+     * Include schedules with jobs
+     */
+    @Nullable
+    @QueryParameter("detailed")
+    abstract Boolean getDetailed();
 
     /**
      * The space id

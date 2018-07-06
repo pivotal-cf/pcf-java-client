@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1.jobs;
+package io.pivotal.scheduler.v1.calls;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.pivotal.scheduler.v1.PaginatedResponse;
 import org.immutables.value.Value;
 
 /**
- * The response payload for the List Job Histories operation
+ * The Resource response payload for the List Call Schedules operation
  */
 @JsonDeserialize
 @Value.Immutable
-abstract class _ListJobHistoriesResponse extends PaginatedResponse<JobHistory> {
+abstract class _CallSchedule extends AbstractCallSchedule {
 
 }

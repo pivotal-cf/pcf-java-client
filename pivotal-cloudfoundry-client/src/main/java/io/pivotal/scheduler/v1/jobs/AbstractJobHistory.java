@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package io.pivotal.scheduler.v1.calls;
+package io.pivotal.scheduler.v1.jobs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.pivotal.scheduler.v1.Resource;
 import org.cloudfoundry.Nullable;
 
 /**
- * Base class for responses that are Call Histories
+ * Base class for responses that are Job Histories
  */
-public abstract class CallHistory extends Resource {
-
-    /**
-     * The call ID
-     */
-    @JsonProperty("call_guid")
-    @Nullable
-    abstract String getCallId();
+public abstract class AbstractJobHistory extends Resource {
 
     /**
      * Time when the associated schedule finished execution
@@ -45,6 +38,13 @@ public abstract class CallHistory extends Resource {
     @JsonProperty("execution_start_time")
     @Nullable
     abstract String getExecutionStartTime();
+
+    /**
+     * ID of the job associated with this history
+     */
+    @JsonProperty("job_guid")
+    @Nullable
+    abstract String getJobId();
 
     /**
      * Output message of the scheduled execution
@@ -73,5 +73,12 @@ public abstract class CallHistory extends Resource {
     @JsonProperty("state")
     @Nullable
     abstract String getState();
+
+    /**
+     * ID of the Cloud Controller task associated with the job’s execution
+     */
+    @JsonProperty("task_guid")
+    @Nullable
+    abstract String getTaskId();
 
 }
