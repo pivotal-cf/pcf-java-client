@@ -16,6 +16,7 @@
 
 package io.pivotal.reactor.scheduler.v1;
 
+import io.pivotal.reactor.util.ErrorPayloadMapper;
 import org.cloudfoundry.reactor.ConnectionContext;
 import org.cloudfoundry.reactor.TokenProvider;
 import org.cloudfoundry.reactor.client.QueryBuilder;
@@ -27,8 +28,11 @@ import java.util.function.Function;
 
 public class AbstractSchedulerV1Operations extends AbstractReactorOperations {
 
+    private final ConnectionContext connectionContext;
+
     protected AbstractSchedulerV1Operations(ConnectionContext connectionContext, Mono<String> root, TokenProvider tokenProvider) {
         super(connectionContext, root, tokenProvider);
+        this.connectionContext = connectionContext;
     }
 
     protected final <T> Mono<T> delete(Object requestPayload, Class<T> responseType, Function<UriComponentsBuilder, UriComponentsBuilder> uriTransformer) {
@@ -36,7 +40,7 @@ public class AbstractSchedulerV1Operations extends AbstractReactorOperations {
             queryTransformer(requestPayload)
                 .andThen(uriTransformer),
             outbound -> outbound,
-            inbound -> inbound);
+            ErrorPayloadMapper.scheduler(this.connectionContext.getObjectMapper()));
     }
 
     protected final <T> Mono<T> get(Object requestPayload, Class<T> responseType, Function<UriComponentsBuilder, UriComponentsBuilder> uriTransformer) {
@@ -44,7 +48,7 @@ public class AbstractSchedulerV1Operations extends AbstractReactorOperations {
             queryTransformer(requestPayload)
                 .andThen(uriTransformer),
             outbound -> outbound,
-            inbound -> inbound);
+            ErrorPayloadMapper.scheduler(this.connectionContext.getObjectMapper()));
     }
 
     protected final <T> Mono<T> post(Object requestPayload, Class<T> responseType, Function<UriComponentsBuilder, UriComponentsBuilder> uriTransformer) {
@@ -52,7 +56,7 @@ public class AbstractSchedulerV1Operations extends AbstractReactorOperations {
             queryTransformer(requestPayload)
                 .andThen(uriTransformer),
             outbound -> outbound,
-            inbound -> inbound);
+            ErrorPayloadMapper.scheduler(this.connectionContext.getObjectMapper()));
     }
 
     private static Function<UriComponentsBuilder, UriComponentsBuilder> queryTransformer(Object requestPayload) {

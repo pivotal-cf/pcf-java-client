@@ -54,6 +54,7 @@ import java.time.Duration;
 import java.util.Optional;
 
 import static io.pivotal.scheduler.v1.schedules.ExpressionType.CRON;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.cloudfoundry.util.tuple.TupleUtils.function;
 
 public final class JobsTest extends AbstractIntegrationTest {
@@ -118,7 +119,8 @@ public final class JobsTest extends AbstractIntegrationTest {
                     .build()))
             .flatMap(jobId -> requestGetJob(this.schedulerClient, jobId))
             .as(StepVerifier::create)
-            .verifyComplete();
+            .consumeErrorWith(t -> assertThat(t).isInstanceOf(SchedulerException.class).hasMessageMatching("Not Found"))
+            .verify(Duration.ofMinutes(5));
     }
 
     @Test
@@ -311,6 +313,23 @@ public final class JobsTest extends AbstractIntegrationTest {
             .map(JobHistory::getState)
             .as(StepVerifier::create)
             .expectNext("FAILED")
+            .verifyComplete();
+    }
+
+    @Test
+    public void listNoneFound() {
+        String jobName = this.nameFactory.getJobName();
+
+        this.spaceId
+            .flatMapMany(spaceId -> io.pivotal.reactor.util.PaginationUtils
+                .requestResources(page -> this.schedulerClient.jobs()
+                    .list(ListJobsRequest.builder()
+                        .page(page)
+                        .spaceId(spaceId)
+                        .build())))
+            .filter(resource -> jobName.endsWith(resource.getName()))
+            .map(Job::getCommand)
+            .as(StepVerifier::create)
             .verifyComplete();
     }
 

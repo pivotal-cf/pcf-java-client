@@ -52,6 +52,7 @@ import reactor.util.function.Tuples;
 import java.time.Duration;
 
 import static io.pivotal.scheduler.v1.schedules.ExpressionType.CRON;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.cloudfoundry.util.tuple.TupleUtils.function;
 
 public final class CallsTest extends AbstractIntegrationTest {
@@ -117,7 +118,8 @@ public final class CallsTest extends AbstractIntegrationTest {
                     .build()))
             .flatMap(callId -> requestGetCall(this.schedulerClient, callId))
             .as(StepVerifier::create)
-            .verifyComplete();
+            .consumeErrorWith(t -> assertThat(t).isInstanceOf(SchedulerException.class).hasMessageMatching("Not Found"))
+            .verify(Duration.ofMinutes(5));
     }
 
     @Test
