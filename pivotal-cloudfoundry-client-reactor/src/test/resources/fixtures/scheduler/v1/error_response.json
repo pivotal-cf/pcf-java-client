@@ -1,0 +1,11 @@
+{
+  "description": "Validation of resource failed.",
+  "errors": [
+    {
+      "resource": "scheduleRequest",
+      "messages": [
+        "The cron expression 'a b c d e f' is invalid."
+      ]
+    }
+  ]
+}
