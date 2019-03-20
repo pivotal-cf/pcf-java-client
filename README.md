@@ -1,6 +1,6 @@
 # Cloud Foundry Java Client
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.pivotal/pivotal-cloudfoundry-client/3.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3Aio.pivotal%20AND%20a%3Apivotal-cloudfoundry-*)
+[![Maven Central](https://img.shields.io/maven-central/v/io.pivotal/pivotal-cloudfoundry-client/3.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3Aio.pivotal%20AND%20a%3Apivotal-cloudfoundry-*)
 
 | Artifact | Javadocs
 | -------- | --------
@@ -50,7 +50,7 @@ Snapshot artifacts can be found in the Spring snapshot repository:
     <repository>
         <id>spring-snapshots</id>
         <name>Spring Snapshots</name>
-        <url>http://repo.spring.io/snapshot</url>
+        <url>https://repo.spring.io/snapshot</url>
         <snapshots>
             <enabled>true</enabled>
         </snapshots>
@@ -74,7 +74,7 @@ Snapshot artifacts can be found in the Spring snapshot repository:
 
 ```groovy
 repositories {
-    maven { url 'http://repo.spring.io/snapshot' }
+    maven { url 'https://repo.spring.io/snapshot' }
     ...
 }
 ```
@@ -179,7 +179,7 @@ This project is released under version 2.0 of the [Apache License][l].
 [d]: https://github.com/cloudfoundry/java-client
 [e]: https://github.com/cloudfoundry/java-client/issues
 [g]: https://gradle.org
-[h]: http://projectreactor.io/io/docs/api/reactor/io/netty/http/HttpClient.html
+[h]: https://projectreactor.io/io/docs/api/reactor/io/netty/http/HttpClient.html
 [i]: https://github.com/pivotal-cf/pcfdev
 [l]: https://www.apache.org/licenses/LICENSE-2.0
 [m]: https://maven.apache.org
