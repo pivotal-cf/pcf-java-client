@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>2.0.3.RELEASE</version>
+        <version>2.0.9.RELEASE</version>
     </parent>
 
     <groupId>io.pivotal</groupId>
@@ -42,12 +42,12 @@
     </modules>
 
     <properties>
-        <cf-java-client.version>3.12.0.RELEASE</cf-java-client.version>
-        <immutables.version>2.6.1</immutables.version>
-        <okhttp3.version>3.10.0</okhttp3.version>
+        <cf-java-client.version>3.15.0.RELEASE</cf-java-client.version>
+        <immutables.version>2.7.4</immutables.version>
+        <okhttp3.version>3.14.2</okhttp3.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <reactor-core.version>3.1.8.RELEASE</reactor-core.version>
-        <reactor-netty.version>0.7.8.RELEASE</reactor-netty.version>
+        <reactor-core.version>3.1.16.RELEASE</reactor-core.version>
+        <reactor-netty.version>0.7.15.RELEASE</reactor-netty.version>
     </properties>
 
     <dependencyManagement>
@@ -126,7 +126,7 @@
                     <version>2.10.4</version>
                     <configuration>
                         <links>
-                            <link>http://projectreactor.io/docs/core/release/api/</link>
+                            <link>https://projectreactor.io/docs/core/release/api/</link>
                             <link>https://javadoc.io/doc/org.cloudfoundry/cloudfoundry-client-reactor</link>
                         </links>
                         <quiet>true</quiet>
@@ -196,7 +196,7 @@
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
-            <url>http://repo.spring.io/milestone</url>
+            <url>https://repo.spring.io/milestone</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -204,7 +204,7 @@
         <repository>
             <id>spring-releases</id>
             <name>Spring Releases</name>
-            <url>http://repo.spring.io/release</url>
+            <url>https://repo.spring.io/release</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -212,7 +212,7 @@
         <repository>
             <id>spring-snapshots</id>
             <name>Spring Snapshots</name>
-            <url>http://repo.spring.io/snapshot</url>
+            <url>https://repo.spring.io/snapshot</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
@@ -234,7 +234,7 @@
             </snapshots>
             <id>central</id>
             <name>bintray-plugins</name>
-            <url>http://jcenter.bintray.com</url>
+            <url>https://jcenter.bintray.com</url>
         </pluginRepository>
     </pluginRepositories>
 

@@ -179,7 +179,7 @@ This project is released under version 2.0 of the [Apache License][l].
 [d]: https://github.com/cloudfoundry/java-client
 [e]: https://github.com/cloudfoundry/java-client/issues
 [g]: https://gradle.org
-[h]: http://projectreactor.io/io/docs/api/reactor/io/netty/http/HttpClient.html
+[h]: https://projectreactor.io/docs/netty/release/api/reactor/netty/http/client/HttpClient.html
 [i]: https://github.com/pivotal-cf/pcfdev
 [l]: https://www.apache.org/licenses/LICENSE-2.0
 [m]: https://maven.apache.org
