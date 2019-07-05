@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 public interface Calls {
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#create-call">Create Call</a> request
+     * Makes the <a href="https://docs.pivotal.io/pcf-scheduler/1-1/api/#create-call">Create Call</a> request
      *
      * @param request the Create Call request
      * @return the response to the Create Call request
@@ -32,7 +32,7 @@ public interface Calls {
     Mono<CreateCallResponse> create(CreateCallRequest request);
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#delete-a-call">Delete a Call</a> request
+     * Makes the <a href="https://docs.pivotal.io/pcf-scheduler/1-1/api/#delete-a-call">Delete a Call</a> request
      *
      * @param request the Delete a Call request
      * @return the response to the Delete a Call request
@@ -40,7 +40,7 @@ public interface Calls {
     Mono<Void> delete(DeleteCallRequest request);
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#deletes-the-given-schedule-for-the-given-job">Delete a Call Schedule</a> request
+     * Makes the <a href="https://docs.pivotal.io/pcf-scheduler/1-1/api/#deletes-the-given-schedule-for-the-given-job">Delete a Call Schedule</a> request
      *
      * @param request the Delete a Call Schedule request
      * @return the response to the Delete a Call Schedule request
@@ -48,7 +48,7 @@ public interface Calls {
     Mono<Void> deleteSchedule(DeleteCallScheduleRequest request);
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#execute-a-call-as-soon-as-possible">Execute a Call</a> request
+     * Makes the <a href="https://docs.pivotal.io/pcf-scheduler/1-1/api/#execute-a-call-as-soon-as-possible">Execute a Call</a> request
      *
      * @param request the Execute a Call request
      * @return the response to the Execute a Call request
@@ -56,7 +56,7 @@ public interface Calls {
     Mono<ExecuteCallResponse> execute(ExecuteCallRequest request);
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#get-a-call">Get a Call</a> request
+     * Makes the <a href="https://docs.pivotal.io/pcf-scheduler/1-1/api/#get-a-call">Get a Call</a> request
      *
      * @param request the Get a Call request
      * @return the response to the Get a Call request
@@ -64,7 +64,7 @@ public interface Calls {
     Mono<GetCallResponse> get(GetCallRequest request);
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#get-all-calls-within-space">List Calls</a> request
+     * Makes the <a href="https://docs.pivotal.io/pcf-scheduler/1-1/api/#get-all-calls-within-space">List Calls</a> request
      *
      * @param request the List Calls request
      * @return the response to the List Calls request
@@ -72,7 +72,7 @@ public interface Calls {
     Mono<ListCallsResponse> list(ListCallsRequest request);
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#gets-all-execution-histories-for-a-call">List Call Histories</a> request
+     * Makes the <a href="https://docs.pivotal.io/pcf-scheduler/1-1/api/#gets-all-execution-histories-for-a-call">List Call Histories</a> request
      *
      * @param request the List Call Histories request
      * @return the response to the List Call Histories request
@@ -80,7 +80,7 @@ public interface Calls {
     Mono<ListCallHistoriesResponse> listHistories(ListCallHistoriesRequest request);
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#gets-all-execution-histories-for-a-call-and-schedule">List Call Schedule Histories</a> request
+     * Makes the <a href="https://docs.pivotal.io/pcf-scheduler/1-1/api/#gets-all-execution-histories-for-a-call-and-schedule">List Call Schedule Histories</a> request
      *
      * @param request the List Call Schedule Histories request
      * @return the response to the List Call Schedule Histories request
@@ -88,7 +88,7 @@ public interface Calls {
     Mono<ListCallScheduleHistoriesResponse> listScheduleHistories(ListCallScheduleHistoriesRequest request);
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#gets-all-execution-histories-for-a-call">List Call Schedules</a> request
+     * Makes the <a href="https://docs.pivotal.io/pcf-scheduler/1-1/api/#gets-all-execution-histories-for-a-call">List Call Schedules</a> request
      *
      * @param request the List Call Schedules request
      * @return the response to the List Call Schedules request
@@ -96,7 +96,7 @@ public interface Calls {
     Mono<ListCallSchedulesResponse> listSchedules(ListCallSchedulesRequest request);
 
     /**
-     * Makes the <a href="http://docs.pivotal.io/pcf-scheduler/1-1/api/#schedules-a-call-to-run-later">Schedule a Call</a> request
+     * Makes the <a href="https://docs.pivotal.io/pcf-scheduler/1-1/api/#schedules-a-call-to-run-later">Schedule a Call</a> request
      *
      * @param request the Schedule a Call request
      * @return the response to the Schedule a Call request
