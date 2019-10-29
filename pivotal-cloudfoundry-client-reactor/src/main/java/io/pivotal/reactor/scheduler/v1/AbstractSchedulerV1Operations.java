@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2018 the original author or authors.
+ * Copyright 2018-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package io.pivotal.reactor.scheduler.v1;
 
-import io.pivotal.reactor.util.ErrorPayloadMapper;
 import org.cloudfoundry.reactor.ConnectionContext;
 import org.cloudfoundry.reactor.TokenProvider;
 import org.cloudfoundry.reactor.client.QueryBuilder;
@@ -28,35 +27,34 @@ import java.util.function.Function;
 
 public class AbstractSchedulerV1Operations extends AbstractReactorOperations {
 
-    private final ConnectionContext connectionContext;
-
     protected AbstractSchedulerV1Operations(ConnectionContext connectionContext, Mono<String> root, TokenProvider tokenProvider) {
         super(connectionContext, root, tokenProvider);
-        this.connectionContext = connectionContext;
     }
 
     protected final <T> Mono<T> delete(Object requestPayload, Class<T> responseType, Function<UriComponentsBuilder, UriComponentsBuilder> uriTransformer) {
-        return doDelete(requestPayload, responseType,
-            queryTransformer(requestPayload)
-                .andThen(uriTransformer),
-            outbound -> outbound,
-            ErrorPayloadMapper.scheduler(this.connectionContext.getObjectMapper()));
+        return createOperator()
+            .flatMap(operator -> operator.delete()
+                .uri(queryTransformer(requestPayload).andThen(uriTransformer))
+                .send(requestPayload)
+                .response()
+                .parseBody(responseType));
     }
 
     protected final <T> Mono<T> get(Object requestPayload, Class<T> responseType, Function<UriComponentsBuilder, UriComponentsBuilder> uriTransformer) {
-        return doGet(responseType,
-            queryTransformer(requestPayload)
-                .andThen(uriTransformer),
-            outbound -> outbound,
-            ErrorPayloadMapper.scheduler(this.connectionContext.getObjectMapper()));
+        return createOperator()
+            .flatMap(operator -> operator.get()
+                .uri(queryTransformer(requestPayload).andThen(uriTransformer))
+                .response()
+                .parseBody(responseType));
     }
 
     protected final <T> Mono<T> post(Object requestPayload, Class<T> responseType, Function<UriComponentsBuilder, UriComponentsBuilder> uriTransformer) {
-        return doPost(requestPayload, responseType,
-            queryTransformer(requestPayload)
-                .andThen(uriTransformer),
-            outbound -> outbound,
-            ErrorPayloadMapper.scheduler(this.connectionContext.getObjectMapper()));
+        return createOperator()
+            .flatMap(operator -> operator.post()
+                .uri(queryTransformer(requestPayload).andThen(uriTransformer))
+                .send(requestPayload)
+                .response()
+                .parseBody(responseType));
     }
 
     private static Function<UriComponentsBuilder, UriComponentsBuilder> queryTransformer(Object requestPayload) {

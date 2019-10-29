@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2018 the original author or authors.
+ * Copyright 2018-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,68 +16,11 @@
 
 package io.pivotal.reactor.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.netty.handler.codec.http.HttpStatusClass;
-import io.pivotal.UnknownSchedulerException;
-import io.pivotal.scheduler.v1.SchedulerError;
-import io.pivotal.scheduler.v1.SchedulerException;
+import org.cloudfoundry.reactor.HttpClientResponseWithBody;
 import reactor.core.publisher.Mono;
-import reactor.ipc.netty.http.client.HttpClientResponse;
 
-import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static io.netty.handler.codec.http.HttpStatusClass.CLIENT_ERROR;
-import static io.netty.handler.codec.http.HttpStatusClass.SERVER_ERROR;
-
-public final class ErrorPayloadMapper {
-
-    @SuppressWarnings("unchecked")
-    public static Function<Mono<HttpClientResponse>, Mono<HttpClientResponse>> scheduler(ObjectMapper objectMapper) {
-        return inbound -> inbound
-            .flatMap(mapToError((statusCode, payload) -> {
-                Map<String, Object> map = objectMapper.readValue(payload, Map.class);
-                String description = (String) map.get("description");
-                List<SchedulerError> errors = ((List<Map<String, Object>>) map.get("errors")).stream()
-                    .map(error -> SchedulerError.builder()
-                        .resource((String) error.get("resource"))
-                        .messages((List<String>) error.get("messages"))
-                        .build())
-                    .collect(Collectors.toList());
-                return new SchedulerException(statusCode, description, errors);
-            }));
-    }
-
-    private static boolean isError(HttpClientResponse response) {
-        HttpStatusClass statusClass = response.status().codeClass();
-        return statusClass == CLIENT_ERROR || statusClass == SERVER_ERROR;
-    }
-
-    private static Function<HttpClientResponse, Mono<HttpClientResponse>> mapToError(ExceptionGenerator exceptionGenerator) {
-        return response -> {
-            if (!isError(response)) {
-                return Mono.just(response);
-            }
-
-            return response.receive().aggregate().asString()
-                .switchIfEmpty(Mono.error(new SchedulerException(response.status().code(), response.status().reasonPhrase(), null)))
-                .flatMap(payload -> {
-                    try {
-                        return Mono.error(exceptionGenerator.apply(response.status().code(), payload));
-                    } catch (Exception e) {
-                        return Mono.error(new UnknownSchedulerException(response.status().code(), payload));
-                    }
-                });
-        };
-    }
-
-    @FunctionalInterface
-    private interface ExceptionGenerator {
-
-        RuntimeException apply(Integer statusCode, String payload) throws Exception;
-
-    }
+public interface ErrorPayloadMapper extends Function<Mono<HttpClientResponseWithBody>, Mono<HttpClientResponseWithBody>> {
 
 }
