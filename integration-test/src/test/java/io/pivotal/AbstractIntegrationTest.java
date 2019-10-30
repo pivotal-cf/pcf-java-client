@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2018 the original author or authors.
+ * Copyright 2018-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.cloudfoundry.util.tuple.TupleUtils.consumer;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = IntegrationTestConfiguration.class)
+@ContextConfiguration(classes = IntegrationTestConfiguration.class)
 public abstract class AbstractIntegrationTest {
 
     private final Logger logger = LoggerFactory.getLogger("cloudfoundry-client.test");
