@@ -36,8 +36,8 @@
     </modules>
 
     <properties>
-        <cf-java-client.version>4.0.0.BUILD-SNAPSHOT</cf-java-client.version>
-        <dependencies.version>2.2.1.BUILD-SNAPSHOT</dependencies.version>
+        <cf-java-client.version>4.0.0.RELEASE</cf-java-client.version>
+        <dependencies.version>2.2.1.RELEASE</dependencies.version>
         <immutables.version>2.7.4</immutables.version>
         <okhttp3.version>3.14.4</okhttp3.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -188,18 +188,6 @@
             <url>https://jcenter.bintray.com</url>
         </pluginRepository>
     </pluginRepositories>
-
-    <!--TODO: Remove once testing against Boot Snapshots is complete -->
-    <repositories>
-        <repository>
-            <id>spring-snapshot</id>
-            <name>Spring Snapshots</name>
-            <url>https://repo.spring.io/snapshot</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <profiles>
         <profile>
