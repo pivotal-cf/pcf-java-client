@@ -36,7 +36,7 @@
     </modules>
 
     <properties>
-        <cf-java-client.version>4.0.0.RELEASE</cf-java-client.version>
+        <cf-java-client.version>4.0.1.RELEASE</cf-java-client.version>
         <dependencies.version>2.2.1.RELEASE</dependencies.version>
         <immutables.version>2.7.4</immutables.version>
         <okhttp3.version>3.14.4</okhttp3.version>
