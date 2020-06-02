@@ -59,7 +59,7 @@ import static io.pivotal.scheduler.v1.schedules.ExpressionType.CRON;
 
 public final class ReactorJobsTest extends AbstractSchedulerApiTest {
 
-    private final ReactorJobs jobs = new ReactorJobs(CONNECTION_CONTEXT, this.root, TOKEN_PROVIDER);
+    private final ReactorJobs jobs = new ReactorJobs(CONNECTION_CONTEXT, this.root, TOKEN_PROVIDER, Collections.emptyMap());
 
     @Test
     public void create() {

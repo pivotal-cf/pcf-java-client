@@ -20,15 +20,19 @@ import org.cloudfoundry.reactor.ConnectionContext;
 import org.cloudfoundry.reactor.TokenProvider;
 import org.cloudfoundry.reactor.client.QueryBuilder;
 import org.cloudfoundry.reactor.util.AbstractReactorOperations;
+import org.cloudfoundry.reactor.util.UriQueryParameter;
+import org.cloudfoundry.reactor.util.UriQueryParameters;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class AbstractSchedulerV1Operations extends AbstractReactorOperations {
 
-    protected AbstractSchedulerV1Operations(ConnectionContext connectionContext, Mono<String> root, TokenProvider tokenProvider) {
-        super(connectionContext, root, tokenProvider);
+    protected AbstractSchedulerV1Operations(ConnectionContext connectionContext, Mono<String> root, TokenProvider tokenProvider, Map<String, String> requestTags) {
+        super(connectionContext, root, tokenProvider, requestTags);
     }
 
     protected final <T> Mono<T> delete(Object requestPayload, Class<T> responseType, Function<UriComponentsBuilder, UriComponentsBuilder> uriTransformer) {
@@ -57,9 +61,10 @@ public class AbstractSchedulerV1Operations extends AbstractReactorOperations {
                 .parseBody(responseType));
     }
 
-    private static Function<UriComponentsBuilder, UriComponentsBuilder> queryTransformer(Object requestPayload) {
+    private Function<UriComponentsBuilder, UriComponentsBuilder> queryTransformer(Object requestPayload) {
         return builder -> {
-            QueryBuilder.augment(builder, requestPayload);
+            Stream<UriQueryParameter> parameters = new QueryBuilder().build(requestPayload);
+            UriQueryParameters.set(builder, parameters);
             return builder;
         };
     }

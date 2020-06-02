@@ -47,6 +47,7 @@ import org.junit.Test;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
+import java.util.Collections;
 
 import static io.netty.handler.codec.http.HttpMethod.DELETE;
 import static io.netty.handler.codec.http.HttpMethod.GET;
@@ -58,7 +59,7 @@ import static io.pivotal.scheduler.v1.schedules.ExpressionType.CRON;
 
 public final class ReactorCallsTest extends AbstractSchedulerApiTest {
 
-    private final ReactorCalls calls = new ReactorCalls(CONNECTION_CONTEXT, this.root, TOKEN_PROVIDER);
+    private final ReactorCalls calls = new ReactorCalls(CONNECTION_CONTEXT, this.root, TOKEN_PROVIDER, Collections.emptyMap());
 
     @Test
     public void create() {
