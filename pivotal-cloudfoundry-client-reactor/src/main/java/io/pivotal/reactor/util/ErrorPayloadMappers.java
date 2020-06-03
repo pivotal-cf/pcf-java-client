@@ -21,9 +21,12 @@ import io.netty.handler.codec.http.HttpStatusClass;
 import io.pivotal.UnknownSchedulerException;
 import io.pivotal.scheduler.v1.SchedulerError;
 import io.pivotal.scheduler.v1.SchedulerException;
-import org.cloudfoundry.reactor.HttpClientResponseWithBody;
+import org.cloudfoundry.reactor.HttpClientResponseWithConnection;
 import org.cloudfoundry.reactor.util.ErrorPayloadMapper;
 import reactor.core.publisher.Mono;
+import reactor.netty.ByteBufFlux;
+import reactor.netty.Connection;
+import reactor.netty.http.client.HttpClientResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -47,23 +50,28 @@ public final class ErrorPayloadMappers {
                         .messages((List<String>) error.get("messages"))
                         .build())
                     .collect(Collectors.toList());
+
                 return new SchedulerException(statusCode, description, errors);
             }));
     }
 
-    private static boolean isError(HttpClientResponseWithBody response) {
-        HttpStatusClass statusClass = response.getResponse().status().codeClass();
+    private static boolean isError(HttpClientResponse response) {
+        HttpStatusClass statusClass = response.status().codeClass();
         return statusClass == CLIENT_ERROR || statusClass == SERVER_ERROR;
     }
 
-    private static Function<HttpClientResponseWithBody, Mono<HttpClientResponseWithBody>> mapToError(ExceptionGenerator exceptionGenerator) {
+    private static Function<HttpClientResponseWithConnection, Mono<HttpClientResponseWithConnection>> mapToError(ExceptionGenerator exceptionGenerator) {
         return response -> {
-            if (!isError(response)) {
+            if (!isError(response.getResponse())) {
                 return Mono.just(response);
             }
 
-            return response.getBody().aggregate().asString()
-                .switchIfEmpty(Mono.error(new SchedulerException(response.getResponse().status().code(), response.getResponse().status().reasonPhrase(), null)))
+            Connection connection = response.getConnection();
+            ByteBufFlux body = ByteBufFlux.fromInbound(connection.inbound().receive()
+                .doFinally(signalType -> connection.dispose()));
+
+            return body.aggregate().asString()
+                .switchIfEmpty(Mono.error(new UnknownSchedulerException(response.getResponse().status().code())))
                 .flatMap(payload -> {
                     try {
                         return Mono.error(exceptionGenerator.apply(response.getResponse().status().code(), payload));

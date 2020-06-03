@@ -21,11 +21,13 @@ import io.pivotal.UnknownSchedulerException;
 import io.pivotal.scheduler.v1.SchedulerError;
 import io.pivotal.scheduler.v1.SchedulerException;
 import org.cloudfoundry.reactor.HttpClientResponseWithBody;
+import org.cloudfoundry.reactor.HttpClientResponseWithConnection;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.netty.ByteBufFlux;
+import reactor.netty.Connection;
+import reactor.netty.NettyInbound;
 import reactor.netty.http.client.HttpClientResponse;
 import reactor.test.StepVerifier;
 
@@ -43,16 +45,22 @@ import static org.mockito.Mockito.when;
 
 public final class ErrorPayloadMapperTest {
 
+    private final Connection connection = mock(Connection.class, RETURNS_SMART_NULLS);
+
+    private final NettyInbound inbound = mock(NettyInbound.class, RETURNS_SMART_NULLS);
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final HttpClientResponse response = mock(HttpClientResponse.class, RETURNS_SMART_NULLS);
 
     @Test
     public void schedulerBadPayload() throws IOException {
+        when(this.connection.inbound()).thenReturn(this.inbound);
+        when(this.inbound.receive()).thenReturn(ByteBufFlux.fromPath(new ClassPathResource("fixtures/invalid_error_response.json").getFile().toPath()));
         when(this.response.status()).thenReturn(BAD_REQUEST);
-        HttpClientResponseWithBody responseWithBody = buildResponseWithBody(ByteBufFlux.fromPath(new ClassPathResource("fixtures/invalid_error_response.json").getFile().toPath()));
+        HttpClientResponseWithConnection responseWithConnection = buildResponseWithConnection(this.connection);
 
-        Mono.just(responseWithBody)
+        Flux.just(responseWithConnection)
             .transform(ErrorPayloadMappers.scheduler(this.objectMapper))
             .as(StepVerifier::create)
             .consumeErrorWith(t -> assertThat(t)
@@ -65,10 +73,12 @@ public final class ErrorPayloadMapperTest {
 
     @Test
     public void schedulerClientError() throws IOException {
+        when(this.connection.inbound()).thenReturn(this.inbound);
+        when(this.inbound.receive()).thenReturn(ByteBufFlux.fromPath(new ClassPathResource("fixtures/scheduler/v1/error_response.json").getFile().toPath()));
         when(this.response.status()).thenReturn(BAD_REQUEST);
-        HttpClientResponseWithBody responseWithBody = buildResponseWithBody(ByteBufFlux.fromPath(new ClassPathResource("fixtures/scheduler/v1/error_response.json").getFile().toPath()));
+        HttpClientResponseWithConnection responseWithConnection = buildResponseWithConnection(this.connection);
 
-        Mono.just(responseWithBody)
+        Flux.just(responseWithConnection)
             .transform(ErrorPayloadMappers.scheduler(this.objectMapper))
             .as(StepVerifier::create)
             .consumeErrorWith(t -> {
@@ -89,22 +99,24 @@ public final class ErrorPayloadMapperTest {
     @Test
     public void schedulerNoError() {
         when(this.response.status()).thenReturn(OK);
-        HttpClientResponseWithBody responseWithBody = buildResponseWithBody();
+        HttpClientResponseWithConnection responseWithConnection = buildResponseWithConnection(this.connection);
 
-        Mono.just(responseWithBody)
+        Flux.just(responseWithConnection)
             .transform(ErrorPayloadMappers.scheduler(this.objectMapper))
             .as(StepVerifier::create)
-            .expectNext(responseWithBody)
+            .expectNext(responseWithConnection)
             .expectComplete()
             .verify(Duration.ofSeconds(1));
     }
 
     @Test
     public void schedulerServerError() throws IOException {
+        when(this.connection.inbound()).thenReturn(this.inbound);
+        when(this.inbound.receive()).thenReturn(ByteBufFlux.fromPath(new ClassPathResource("fixtures/scheduler/v1/error_response.json").getFile().toPath()));
         when(this.response.status()).thenReturn(INTERNAL_SERVER_ERROR);
-        HttpClientResponseWithBody responseWithBody = buildResponseWithBody(ByteBufFlux.fromPath(new ClassPathResource("fixtures/scheduler/v1/error_response.json").getFile().toPath()));
+        HttpClientResponseWithConnection responseWithConnection = buildResponseWithConnection(this.connection);
 
-        Mono.just(responseWithBody)
+        Flux.just(responseWithConnection)
             .transform(ErrorPayloadMappers.scheduler(this.objectMapper))
             .as(StepVerifier::create)
             .consumeErrorWith(t -> {
@@ -128,6 +140,10 @@ public final class ErrorPayloadMapperTest {
 
     private HttpClientResponseWithBody buildResponseWithBody(ByteBufFlux body) {
         return HttpClientResponseWithBody.of(body, this.response);
+    }
+
+    private HttpClientResponseWithConnection buildResponseWithConnection(Connection connection) {
+        return HttpClientResponseWithConnection.of(connection, this.response);
     }
 
 }
